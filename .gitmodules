@@ -1,0 +1,12 @@
+[submodule "guicho-utilities"]
+	path = guicho-utilities
+	url = git@github.com:guicho271828/guicho-utilities.git
+[submodule "pddl.macro-action"]
+	path = pddl.macro-action
+	url = git@github.com:guicho271828/pddl.macro-action.git
+[submodule "pddl"]
+	path = pddl
+	url = git@github.com:guicho271828/pddl.git
+[submodule "planner-scripts"]
+	path = planner-scripts
+	url = git@github.com:guicho271828/planner-scripts.git
