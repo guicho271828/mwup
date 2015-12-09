@@ -8,7 +8,8 @@
   (:use :cl
         :mwup
         :fiveam
-        :pddl.macro-action :pddl :alexandria :iterate))
+        :pddl.macro-action :pddl :alexandria :iterate)
+  (:shadowing-import-from :iterate :minimize :maximize))
 (in-package :mwup.test)
 
 

@@ -5,7 +5,8 @@
 
 (in-package :cl-user)
 (defpackage mwup
-  (:use :cl :pddl.macro-action :pddl :alexandria :iterate))
+  (:use :cl :pddl.macro-action :pddl :alexandria :iterate :trivia)
+  (:shadowing-import-from :iterate :minimize :maximize))
 (in-package :mwup)
 
 ;; blah blah blah.

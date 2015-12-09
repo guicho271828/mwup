@@ -22,7 +22,7 @@
   :author "Masataro Asai"
   :mailto "guicho2.71828@gmail.com"
   :license "WTFPL"
-  :depends-on (:pddl.planner-scripts :pddl.macro-action :pddl :alexandria :iterate)
+  :depends-on (:pddl.planner-scripts :pddl.macro-action :pddl :alexandria :iterate :trivia)
   :components ((:module "src"
                 :components
                 ((:file "package"))))
