@@ -20,18 +20,40 @@
 
 ;; run test with (run! test-name) 
 
-(test mwup
-  
-  )
-
 (defun launch (&rest args)
-  (run-program (list* "ros" (namestring (asdf:system-relative-pathname :mwup "mwup.ros")) args)
-               :output t
-               :error-output t))
+  (let* ((*default-pathname-defaults*
+          (asdf:system-source-directory :mwup))
+         (cmd (format nil
+                      "cd ~a; cgexec -g cpu,cpuacct,memory:/~a ros~{ ~s~}"
+                      (namestring *default-pathname-defaults*)
+                      (run-program "whoami" :output '(:string :stripped t))
+                      (mapcar #'namestring (apply #'list (merge-pathnames "mwup.ros") args)))))
+    (format t "~&~a~%" cmd)
+    (run-program cmd
+                 :output t
+                 :error-output t
+                 :force-shell t)))
 
-(test ros
+(test ros-dry-runs
   (finishes
-    (launch)
-    (launch "--plain")
-    (launch "--enhance-only")))
+    (launch))
+  (finishes
+    (launch "--plain"))
+  (finishes
+    (launch "--enhance-only"))
+  (finishes
+    (launch "-v" "--plain")))
+
+(test runs
+  (let ((*default-pathname-defaults*
+         (asdf:system-source-directory :mwup)))
+    (finishes
+      (launch "-v" "--plain" "t/test1/p01.pddl"))
+    (finishes
+      (launch "-v" "--plain" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (finishes
+      (launch "-v" "--plain" "t/test3/p01.pddl" "t/test3/domain.pddl"
+              (directory (merge-pathnames "t/test3/test3.macro.*"))))))
+
+
 

@@ -1,8 +1,10 @@
 
 
-all: mwup
+all: mwup downward
 
+downward: downward-fixed.tar.gz
+	tar xf $<
 
-mwup:
+mwup: $(shell find -name "*.lisp")
 	ros dump mwup
 

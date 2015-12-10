@@ -5,7 +5,8 @@
 
 (in-package :cl-user)
 (defpackage mwup
-  (:use :cl :pddl.macro-action :pddl :alexandria :iterate :trivia)
+  (:use :cl :pddl.macro-action :pddl :alexandria :iterate :trivia
+        :guicho-utilities)
   (:shadowing-import-from :iterate :minimize :maximize))
 (in-package :mwup)
 
@@ -39,8 +40,12 @@ Ignored when *remove-main-problem-cost* is T.")
 by the external planner could be modified so that it does not have
 any :action-costs, so that any pure STRIPS-based planners can be
 used. Supercedes *add-macro-cost*.")
-(defvar *search* nil "")
-(defvar *options* nil "")
+(defvar *search* "fd-clean"
+  "search command in planner-scripts.")
+(defvar *options* "--search-options --if-unit-cost --heuristic hlm,hff=lm_ff_syn(lm_rhw(reasonable_orders=true)) --search lazy_greedy([hff,hlm],preferred=[hff,hlm]) --if-non-unit-cost --heuristic hlm1,hff1=lm_ff_syn(lm_rhw(reasonable_orders=true,lm_cost_type=one,cost_type=one)) --search lazy_greedy([hff1,hlm1],preferred=[hff1,hlm1],cost_type=one,reopen_closed=false) --always"
+  "search options to pass to the underlying planner. default value is for
+fd-clean and specifies those equivalent to LAMA2011.")
+
 #+nil (defvar ** nil "")
 
 (defun main (&rest args)
@@ -95,7 +100,8 @@ used. Supercedes *add-macro-cost*.")
           (parse rest))))
       ((list* _ _)
        (format t "~%; Build date : ~a~%" *build-date*)
-       (apply #'solve (mapcar #'merge-pathnames args)))
+       (uiop:quit
+        (if (apply #'solve (mapcar #'merge-pathnames args)) 0 2)))
       (nil
        (format *error-output* "~&Usage: component-planner PROBLEM [DOMAIN] [MACROPLANS...]~
                ~%~@{~4t~40<~(~a~)~;~{~a ~}~> : ~@(~a~)~%~}"
