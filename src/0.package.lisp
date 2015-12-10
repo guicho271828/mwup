@@ -30,7 +30,10 @@
 (defvar *plain* nil "")
 (defvar *lift* nil "")
 (defvar *iterated* nil "")
-(defvar *add-macro-cost* nil "")
+(defvar *add-macro-cost* nil "Add the action costs to the domain if it is a unit-cost domain.
+Primitive actions are given a cost of 1. Macro actions are given a cost same as its length.
+Ignored when *remove-main-problem-cost* is T.")
+
 (defvar *remove-cost* nil "When non-nil, the problem and the domain solved
 by the external planner could be modified so that it does not have
 any :action-costs, so that any pure STRIPS-based planners can be
