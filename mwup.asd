@@ -23,9 +23,11 @@
   :mailto "guicho2.71828@gmail.com"
   :license "WTFPL"
   :depends-on (:pddl.planner-scripts :pddl.macro-action :pddl :alexandria :iterate :trivia)
-  :components ((:module "src"
+  :components ((:module :src
                 :components
                 ((:file :0.package)
-                 (:file :1.solve))))
+                 (:file :1.solve)
+                 (:file :2.plan-plain)
+                 (:file :2.plan-macro))))
   :description "Macro without Utility Problem"
   :in-order-to ((test-op (load-op :mwup.test))))
