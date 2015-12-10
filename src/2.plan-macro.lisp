@@ -23,7 +23,7 @@
 (defun macros-from-plans (problem domain macro-paths)
   (iter (for path in macro-paths)
         (collect
-            (ground-macro-action
+            (nullary-macro-action
              (actions
               (pddl-plan :path path :domain domain :problem problem))))))
 
