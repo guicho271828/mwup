@@ -42,7 +42,7 @@ used. Supercedes *add-macro-cost*.")
 (defvar *options* nil "")
 #+nil (defvar ** nil "")
 
-(defun main (args)
+(defun main (&rest args)
   (when *verbose* (print args))
   (let ((*package* (find-package :mwup)))
     (match args
