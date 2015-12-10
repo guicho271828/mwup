@@ -28,6 +28,7 @@
                 ((:file :0.package)
                  (:file :1.solve)
                  (:file :2.plan-plain)
-                 (:file :2.plan-macro))))
+                 (:file :2.plan-macro)
+                 (:file :3.enhance))))
   :description "Macro without Utility Problem"
   :in-order-to ((test-op (load-op :mwup.test))))
