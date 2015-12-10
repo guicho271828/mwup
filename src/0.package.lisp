@@ -31,7 +31,10 @@
 (defvar *lift* nil "")
 (defvar *iterated* nil "")
 (defvar *add-macro-cost* nil "")
-(defvar *remove-cost* nil "")
+(defvar *remove-cost* nil "When non-nil, the problem and the domain solved
+by the external planner could be modified so that it does not have
+any :action-costs, so that any pure STRIPS-based planners can be
+used. Supercedes *add-macro-cost*.")
 (defvar *search* nil "")
 (defvar *options* nil "")
 #+nil (defvar ** nil "")
@@ -109,5 +112,4 @@
        (terpri *error-output*))
       (_
        (format *error-output* "~%Invalid Arguments!~%")
-       (main nil)
-       (error "~&Invalid Arguments!~2%")))))
+       (main nil)))))
