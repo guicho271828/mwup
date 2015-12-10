@@ -86,7 +86,7 @@ used. Supercedes *add-macro-cost*.")
           (main rest))))
       ((list* _ _)
        (format t "~%; Build date : ~a~%" *build-date*)
-       (apply #'solve (mapcar #'merge-pathnames argv)))
+       (apply #'solve (mapcar #'merge-pathnames args)))
       (nil
        (format *error-output* "~&Usage: component-planner PROBLEM [DOMAIN] [MACROPLANS...]~
                ~%~@{~4t~40<~(~a~)~;~{~a ~}~> : ~@(~a~)~%~}"
