@@ -30,6 +30,7 @@
                  (:file :2.plan-plain)
                  (:file :2.plan-macro)
                  (:file :3.enhance)
-                 (:file :3.macro-cost))))
+                 (:file :3.macro-cost)
+                 (:file :3.filter))))
   :description "Macro without Utility Problem"
   :in-order-to ((test-op (load-op :mwup.test))))
