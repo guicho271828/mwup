@@ -18,3 +18,8 @@
 	url = git@github.com:guicho271828/planner-scripts.git
 	branch = master
         update = rebase
+[submodule "downward"]
+	path = downward
+	url = git@github.com:guicho271828/downward-fixed-build.git
+	branch = master
+        update = rebase

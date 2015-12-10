@@ -1,9 +1,6 @@
 
 
-all: mwup downward
-
-downward: downward-fixed.tar.gz
-	tar xf $<
+all: mwup
 
 mwup: $(shell find -name "*.lisp")
 	ros dump executable ./mwup.ros
