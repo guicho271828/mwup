@@ -62,7 +62,7 @@
   (finishes
     (launch "-v" "--plain")))
 
-(test runs
+(test plain
   (let ((*default-pathname-defaults*
          (asdf:system-source-directory :mwup)))
     (finishes
@@ -71,7 +71,22 @@
       (launch "-v" "--plain" "t/test2/p01.pddl" "t/test2/domain.pddl"))
     (finishes
       (launch "-v" "--plain" "t/test3/p01.pddl" "t/test3/domain.pddl"
-              (directory (merge-pathnames "t/test3/test3.macro.*"))))))
+              (directory (merge-pathnames "t/test3/p01.macro.*"))))))
+
+(test macros
+  (let ((*default-pathname-defaults*
+         (asdf:system-source-directory :mwup)))
+    (finishes
+      (launch "-v" "t/test1/p01.pddl"))
+    (finishes
+      (launch "-v" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (finishes
+      (launch "-v" "t/test3/p01.pddl" "t/test3/domain.pddl"
+              (directory (merge-pathnames "t/test3/p01.macro.*"))))
+    (finishes
+      (launch "-v" "--add-macro-cost"
+              "t/test3/p01.pddl" "t/test3/domain.pddl"
+              (directory (merge-pathnames "t/test3/p01.macro.*"))))))
 
 
 
