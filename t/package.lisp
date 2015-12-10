@@ -8,7 +8,8 @@
   (:use :cl
         :mwup
         :fiveam
-        :pddl.macro-action :pddl :alexandria :iterate)
+        :pddl.macro-action :pddl :alexandria :iterate
+        :uiop/run-program)
   (:shadowing-import-from :iterate :minimize :maximize))
 (in-package :mwup.test)
 
@@ -20,8 +21,16 @@
 ;; run test with (run! test-name) 
 
 (test mwup
-
+  
   )
 
+(defun launch (&rest args)
+  (run-program (list* "ros" (namestring (asdf:system-relative-pathname :mwup "mwup.ros")) args)
+               :output t))
 
+(test ros
+  (finishes
+    (launch)
+    (launch "--plain")
+    (launch "--enhance-only")))
 
