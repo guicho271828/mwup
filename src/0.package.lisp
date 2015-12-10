@@ -25,6 +25,7 @@
                 (rec (cons string acc) rest)))))
     (rec nil list)))
 
+(defvar *enhance-only* nil "when non-nil, enhance the domain with macros but do not solve the problem")
 (defvar *verbose* nil "")
 (defvar *validation* nil "")
 (defvar *plain* nil "")
@@ -45,6 +46,7 @@ used. Supercedes *add-macro-cost*.")
 (defun main (&rest args)
   (when *verbose* (print args))
   (let ((*package* (find-package :mwup)))
+    ;; special variables are set globally, in order to handle multithreaded environment correctly
     (match args
       ;; debug options
       ((list* "-v" rest)
@@ -52,6 +54,9 @@ used. Supercedes *add-macro-cost*.")
        (main rest))
       ((list* "--validation" rest)
        (setf *validation* t)
+       (main rest))
+      ((list* "--enhance-only" rest)
+       (setf *enhance-only* t)
        (main rest))
       ((list* "--plain" rest)
        (format t "~&; Plain mode was activated, CAP runs only the main planner.")
