@@ -49,7 +49,7 @@
     (unless *enhance-only*
       (when (zerop (length macros)) (signal 'no-macro))
       (let* ((dir (mktemp "enhanced"))
-             (plans (handler-bind ((unix-signal
+             (plans (handler-bind ((trivial-signal:unix-signal
                                     (lambda (c)
                                       (format t "~&main search terminated")
                                       (invoke-restart
