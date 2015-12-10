@@ -26,7 +26,8 @@
 
 (defun launch (&rest args)
   (run-program (list* "ros" (namestring (asdf:system-relative-pathname :mwup "mwup.ros")) args)
-               :output t))
+               :output t
+               :error-output t))
 
 (test ros
   (finishes
