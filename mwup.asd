@@ -25,6 +25,7 @@
   :depends-on (:pddl.planner-scripts :pddl.macro-action :pddl :alexandria :iterate :trivia)
   :components ((:module "src"
                 :components
-                ((:file :0.package))))
+                ((:file :0.package)
+                 (:file :1.solve))))
   :description "Macro without Utility Problem"
   :in-order-to ((test-op (load-op :mwup.test))))
