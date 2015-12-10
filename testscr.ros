@@ -4,13 +4,11 @@
 exec ros -Q -- $0 "$@"
 |#
 
-(ql:quickload :fiveam)
-
 (defun main (&rest argv)
   (declare (ignorable argv))
   (uiop:quit (if (handler-case
                      (progn
-                       (asdf:load-system :mwup.test)
+                       (ql:quickload :mwup.test)
                        (eval (read-from-string "(every #'fiveam::TEST-PASSED-P (5am:run! :mwup))")))
                    (serious-condition (c)
                      (describe c)

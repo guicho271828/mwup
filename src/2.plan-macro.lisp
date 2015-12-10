@@ -23,7 +23,7 @@
 (defun macros-from-plans (problem domain macro-paths)
   (iter (for path in macro-paths)
         (collect
-            (ground-macro-action
+            (nullary-macro-action
              (actions
               (pddl-plan :path path :domain domain :problem problem))))))
 
@@ -49,7 +49,7 @@
     (unless *enhance-only*
       (when (zerop (length macros)) (signal 'no-macro))
       (let* ((dir (mktemp "enhanced"))
-             (plans (handler-bind ((unix-signal
+             (plans (handler-bind ((trivial-signal:unix-signal
                                     (lambda (c)
                                       (format t "~&main search terminated")
                                       (invoke-restart

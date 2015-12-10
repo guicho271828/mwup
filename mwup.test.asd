@@ -20,5 +20,10 @@
   :components ((:module "t"
                 :components
                 ((:file "package"))))
-  :perform (load-op :after (op c) (eval (read-from-string "(every #'fiveam::TEST-PASSED-P (5am:run! :mwup))"))
-))
+  :perform (test-op :after (op c)
+                    (uiop:run-program
+                     (format nil "make -C ~a"
+                             (asdf:system-source-directory :mwup))
+                     :output t
+                     :error-output t)
+                    (eval (read-from-string "(every #'fiveam::TEST-PASSED-P (5am:run! :mwup))"))))

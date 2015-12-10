@@ -33,4 +33,4 @@
                  (:file :3.macro-cost)
                  (:file :3.filter))))
   :description "Macro without Utility Problem"
-  :in-order-to ((test-op (load-op :mwup.test))))
+  :in-order-to ((test-op (test-op :mwup.test))))

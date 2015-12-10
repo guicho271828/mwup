@@ -20,18 +20,73 @@
 
 ;; run test with (run! test-name) 
 
-(test mwup
-  
-  )
+(defun launch-script (&rest args)
+  (let* ((*default-pathname-defaults*
+          (asdf:system-source-directory :mwup))
+         (cmd (format nil
+                      "cd ~a; cgexec -g cpu,cpuacct,memory:/~a ros ~a~{ ~s~}"
+                      (namestring *default-pathname-defaults*)
+                      (run-program "whoami" :output '(:string :stripped t))
+                      (namestring (merge-pathnames "mwup.ros"))
+                      (mapcar #'namestring (flatten args)))))
+    (format t "~&~a~%" cmd)
+    (run-program cmd
+                 :output t
+                 :error-output t
+                 :force-shell t)))
 
 (defun launch (&rest args)
-  (run-program (list* "ros" (namestring (asdf:system-relative-pathname :mwup "mwup.ros")) args)
-               :output t
-               :error-output t))
+  (let* ((*default-pathname-defaults*
+          (asdf:system-source-directory :mwup))
+         (cmd (format nil
+                      "cd ~a; cgexec -g cpu,cpuacct,memory:/~a ~a ~{ ~s~}"
+                      (namestring *default-pathname-defaults*)
+                      (run-program "whoami" :output '(:string :stripped t))
+                      (namestring (merge-pathnames "mwup"))
+                      (mapcar #'namestring (flatten args)))))
+    (format t "~&~a~%" cmd)
+    (run-program cmd
+                 :output t
+                 :error-output t
+                 :force-shell t)))
 
-(test ros
+(test ros-dry-runs
   (finishes
-    (launch)
-    (launch "--plain")
-    (launch "--enhance-only")))
+    (launch-script))
+  (finishes
+    (launch))
+  (finishes
+    (launch "--plain"))
+  (finishes
+    (launch "--enhance-only"))
+  (finishes
+    (launch "-v" "--plain")))
+
+(test plain
+  (let ((*default-pathname-defaults*
+         (asdf:system-source-directory :mwup)))
+    (finishes
+      (launch "-v" "--plain" "t/test1/p01.pddl"))
+    (finishes
+      (launch "-v" "--plain" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (finishes
+      (launch "-v" "--plain" "t/test3/p01.pddl" "t/test3/domain.pddl"
+              (directory (merge-pathnames "t/test3/p01.macro.*"))))))
+
+(test macros
+  (let ((*default-pathname-defaults*
+         (asdf:system-source-directory :mwup)))
+    (finishes
+      (launch "-v" "t/test1/p01.pddl"))
+    (finishes
+      (launch "-v" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (finishes
+      (launch "-v" "t/test3/p01.pddl" "t/test3/domain.pddl"
+              (directory (merge-pathnames "t/test3/p01.macro.*"))))
+    (finishes
+      (launch "-v" "--add-macro-cost"
+              "t/test3/p01.pddl" "t/test3/domain.pddl"
+              (directory (merge-pathnames "t/test3/p01.macro.*"))))))
+
+
 

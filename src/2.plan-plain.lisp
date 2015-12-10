@@ -2,15 +2,16 @@
 
 (defun just-copy-file (src dest)
   (ensure-directories-exist dest)
-  (eazy-process:shell-command
-   (format nil "cp ~a ~a" (namestring src) (namestring dest)) :verbose t)
+  (let ((command (format nil "cp -v ~a ~a" (namestring src) (namestring dest))))
+    (format t "~&; ~a" command)
+    (uiop:run-program command))
   (namestring dest))
 
 (defun plan-plain (dpath ppath)
   (let ((dir (mktemp "plain")))
     (finalize-plans-plain
      dpath ppath
-     (handler-bind ((unix-signal
+     (handler-bind ((trivial-signal:unix-signal
                      (lambda (c)
                        (format t "~&plain search terminated")
                        (invoke-restart
@@ -44,9 +45,8 @@
                    (format nil "~a.plan.~a"
                            (pathname-name ppath) i)))
              (when (probe-file new-path) (delete-file new-path))
-             (sb-ext:run-program
-              "/bin/cp" (list (namestring path)
-                              (namestring new-path)))
+             (uiop:run-program
+              (format nil "/bin/cp ~a ~a" (namestring path) (namestring new-path)))
              (when *validation*
                (always
                 (validate-plan dpath ppath new-path :verbose *verbose*))))))
