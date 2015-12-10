@@ -45,9 +45,8 @@
                    (format nil "~a.plan.~a"
                            (pathname-name ppath) i)))
              (when (probe-file new-path) (delete-file new-path))
-             (sb-ext:run-program
-              "/bin/cp" (list (namestring path)
-                              (namestring new-path)))
+             (uiop:run-program
+              (format nil "/bin/cp ~a ~a" (namestring path) (namestring new-path)))
              (when *validation*
                (always
                 (validate-plan dpath ppath new-path :verbose *verbose*))))))
