@@ -4,6 +4,7 @@
 exec ros -Q -- $0 "$@"
 |#
 
+(push :interpret-pddl *features*)
 (ql:quickload '(:mwup))
 (in-package :mwup)
 
