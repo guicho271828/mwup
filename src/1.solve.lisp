@@ -16,20 +16,32 @@
          (make-pathname :defaults problem-path :name "domain")
          (make-pathname :defaults problem-path :name (format nil "~a-domain" (pathname-name problem-path)))))
 
+
+(defun find-macros (problem-path)
+  (format t "~&finding macros...")
+  (print
+   (ematch problem-path
+     ((pathname name)
+      (directory (make-pathname :defaults problem-path
+                                :name (format nil "~a.macro" name)
+                                :type :wild))))))
+
 (define-condition no-macro () ())
 
 (defvar *start*)
 
 (defun solve (ppath &optional (dpath (find-domain ppath)) &rest macro-paths)
   (setf *start* (get-universal-time))
-  (unwind-protect
-          (if (or *plain* (null macro-paths))
-              (plan-plain dpath ppath)
-              (handler-case
-                  (plan-macro dpath ppath macro-paths)
-                (no-macro ()
-                  (plan-plain dpath ppath))))
-        (format t "~&Wall time: ~a sec~%"
-                (- (get-universal-time) *start*))))
+  (let ((macro-paths (or macro-paths
+                         (find-macros ppath))))
+    (unwind-protect
+        (if *plain*
+            (plan-plain dpath ppath)
+            (handler-case
+                (plan-macro dpath ppath macro-paths)
+              (no-macro ()
+                (plan-plain dpath ppath))))
+      (format t "~&Wall time: ~a sec~%"
+              (- (get-universal-time) *start*)))))
 
 
