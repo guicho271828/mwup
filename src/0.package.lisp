@@ -127,6 +127,7 @@ fd-clean and specifies those equivalent to LAMA2011.")
        (format *error-output* "~%DOMAIN is by default domain.pddl, or <problemname>-domain.pddl in the same directory")
        (format *error-output* "~%MACROPLANS are by default <problemname>.macro.?[0-9]* in the same directory")
        (format *error-output* "~%Build date : ~a" *build-date*)
+       (format *error-output* "~%Base impl : ~a ~a" (lisp-implementation-type) (lisp-implementation-version))
        (terpri *error-output*))
       (_
        (format *error-output* "~%Invalid Arguments!~%")
