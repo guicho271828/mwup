@@ -52,16 +52,21 @@
     (unless *enhance-only*
       (when (zerop (length macros)) (signal 'no-macro))
       (let* ((dir (mktemp "enhanced"))
+             (epp (write-pddl eproblem "eproblem.pddl" dir))
+             (edp (write-pddl edomain "edomain.pddl" dir))
              (plans (handler-bind ((trivial-signal:unix-signal
                                     (lambda (c)
                                       (format t "~&main search terminated")
                                       (invoke-restart
                                        (find-restart 'pddl:finish c)))))
-                      (apply #'test-problem-common
-                             (write-pddl eproblem "eproblem.pddl" dir)
-                             (write-pddl edomain "edomain.pddl" dir)
-                             test-problem-args))))
-        (format t "~&~a plans found, decoding the result plan." (length plans))
+                      (apply #'test-problem-common epp edp test-problem-args))))
+        (format t "~&~a plans found." (length plans))
+        (when *validation*
+          (iter (for plp in plans)
+                (for i from 0)
+                (format t "~% validating plan ~a." i)
+                (validate-plan edp epp plp :verbose *verbose*)))
+        (format t "~%decoding the result plan.")
         (mapcar (lambda (plan i)
                   (terpri)
                   (block nil
