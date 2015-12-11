@@ -6,15 +6,18 @@
      ,@body))
 
 (defun find-domain (problem-path)
-  (let ((dpath (make-pathname :defaults problem-path :name "domain")))
-    (when (probe-file dpath) (return-from find-domain dpath)))
-  (let ((dpath (make-pathname :defaults problem-path :name
-                              (format nil "~a-domain" (pathname-name problem-path)))))
-    (when (probe-file dpath) (return-from find-domain dpath)))
-  (error "~& Failed to infer the domain pathname from problem pathname!~%Problem: ~a~%Candidate: ~a~%Candidate: ~a"
-         problem-path
-         (make-pathname :defaults problem-path :name "domain")
-         (make-pathname :defaults problem-path :name (format nil "~a-domain" (pathname-name problem-path)))))
+  (format t "~&finding the domain file...")
+  (print
+   (block nil
+     (let ((dpath (make-pathname :defaults problem-path :name "domain")))
+       (when (probe-file dpath) (return dpath)))
+     (let ((dpath (make-pathname :defaults problem-path :name
+                                 (format nil "~a-domain" (pathname-name problem-path)))))
+       (when (probe-file dpath) (return dpath)))
+     (error "~& Failed to infer the domain pathname from problem pathname!~%Problem: ~a~%Candidate: ~a~%Candidate: ~a"
+            problem-path
+            (make-pathname :defaults problem-path :name "domain")
+            (make-pathname :defaults problem-path :name (format nil "~a-domain" (pathname-name problem-path)))))))
 
 
 (defun find-macros (problem-path)
