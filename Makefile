@@ -7,5 +7,5 @@ submodules:
 	git submodule update --init --recursive --remote
 
 mwup: $(shell find -name "*.lisp") submodules
-	ros dump executable ./mwup.ros
+	ros -e "(setf ql:*local-project-directories* '(#p\"$(CURDIR)/\"))(ql:register-local-projects)" dump executable ./mwup.ros
 

@@ -26,4 +26,11 @@
                              (asdf:system-source-directory :mwup))
                      :output t
                      :error-output t)
+                    (uiop:run-program
+                     (format nil "~a/t/cgroup-setup.sh"
+                             (asdf:system-source-directory :mwup))
+                     :output t
+                     :error-output t
+                     ;; for tests on CI
+                     :ignore-error-status t)
                     (eval (read-from-string "(every #'fiveam::TEST-PASSED-P (5am:run! :mwup))"))))
