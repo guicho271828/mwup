@@ -22,10 +22,13 @@
 
 (defun macros-from-plans (problem domain macro-paths)
   (iter (for path in macro-paths)
-        (collect
-            (nullary-macro-action
-             (actions
-              (pddl-plan :path path :domain domain :problem problem))))))
+        (handler-case
+            (collect
+                (nullary-macro-action
+                 (actions
+                  (pddl-plan :path path :domain domain :problem problem))))
+          (zero-length-plan (c)
+            (format t "~&Skipping a zero-length plan ~a." path)))))
 
 (defun finalize-plans-macros (dpath ppath plans)
   (and plans
