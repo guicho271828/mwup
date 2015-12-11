@@ -1,7 +1,11 @@
 
+.PHONY: submodules
 
 all: mwup
 
-mwup: $(shell find -name "*.lisp")
+submodules:
+	git submodule update --init --recursive --remote
+
+mwup: $(shell find -name "*.lisp") submodules
 	ros dump executable ./mwup.ros
 
