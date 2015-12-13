@@ -77,14 +77,14 @@
   (let ((*default-pathname-defaults*
          (asdf:system-source-directory :mwup)))
     (finishes
-      (launch "-v" "t/test1/p01.pddl"))
+      (launch "-v" "--validation" "t/test1/p01.pddl"))
     (finishes
-      (launch "-v" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+      (launch "-v" "--validation" "t/test2/p01.pddl" "t/test2/domain.pddl"))
     (finishes
-      (launch "-v" "t/test3/p01.pddl" "t/test3/domain.pddl"
+      (launch "-v" "--validation" "t/test3/p01.pddl" "t/test3/domain.pddl"
               (directory (merge-pathnames "t/test3/p01.macro.*"))))
     (finishes
-      (launch "-v" "--add-macro-cost"
+      (launch "-v" "--validation" "--add-macro-cost"
               "t/test3/p01.pddl" "t/test3/domain.pddl"
               (directory (merge-pathnames "t/test3/p01.macro.*"))))))
 
