@@ -7,7 +7,7 @@
 (defpackage mwup
   (:use :cl :pddl.macro-action :pddl :alexandria :iterate :trivia
         :guicho-utilities)
-  (:shadowing-import-from :iterate :minimize :maximize))
+  (:shadowing-import-from :pddl :minimize :maximize))
 (in-package :mwup)
 
 ;; blah blah blah.
