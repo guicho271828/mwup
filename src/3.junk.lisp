@@ -26,19 +26,27 @@
 
 ;;; main
 
-(defun maybe-junk-macros (problem domain)
+(defun maybe-junk-macros (*problem* *domain*)
   (ematch *junk*
     (nil nil)
     ((list length percentage)
      (format t "~&Adding junk macros of length ~a, with ~a% probability" length percentage)
      (check-type length (integer 2))
      (check-type percentage (integer 0 100))
-     (junk-macros length
-                  (/ percentage 100)
-                  (objects problem)
-                  (actions domain)))))
+     (handler-bind ((simple-warning #'muffle-warning))
+       (junk-macros length
+                    (/ percentage 100)
+                    (objects *problem*)
+                    (actions *domain*))))))
 
 (defun junk-macros (length probability objects actions)
+  (let ((i 0))
+    (iter (for a in actions)
+          (let ((j 0))
+            (collect-for-all-possible-parameters
+             a objects (lambda (&rest params) (declare (ignore params)) (incf i) (incf j)))
+            (format t "~&~a operators for ~a" j a)))
+    (format t "~&~a operators in total" i))
   (labels ((rec (length macro)
              (if (zerop length)
                  (when (< probability (random 1.0))
@@ -47,7 +55,7 @@
                   (lambda (a)
                     (collect-for-all-possible-parameters
                      a objects
-                     (lambda (params)
+                     (lambda (&rest params)
                        (let ((ga (ground-action a params)))
                          (unless (conflict macro ga)
                            (rec (1- length)
@@ -57,14 +65,15 @@
      (lambda (a)
        (collect-for-all-possible-parameters
         a objects
-        (lambda (params)
+        (lambda (&rest params)
           (rec (1- length)
                (ground-action a params)))))
      actions)))
 
 (defun collect-for-all-possible-parameters (a objects fn)
-  (apply #'map-product-if fn
-         (all-possible-parameters a objects)))
+  (ematch (all-possible-parameters a objects)
+    ((list* first rest)
+     (apply #'map-product-if fn first rest))))
 
 (function-cache:defcached all-possible-parameters (a objects)
   (iter (for param in (parameters a))
