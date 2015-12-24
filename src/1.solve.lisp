@@ -22,12 +22,12 @@
 
 (defun find-macros (problem-path)
   (format t "~&finding macros...")
-  (print
-   (ematch problem-path
-     ((pathname name)
-      (directory (make-pathname :defaults problem-path
-                                :name (format nil "~a.macro" name)
-                                :type :wild))))))
+  (ematch problem-path
+    ((pathname name)
+     (let ((wild (merge-pathnames (format nil "~a.macro*.*" name)
+                                  problem-path)))
+       (print wild)
+       (print (directory wild))))))
 
 (define-condition no-macro () ())
 
