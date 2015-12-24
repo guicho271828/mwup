@@ -29,7 +29,7 @@
                 (nullary-macro-action
                  (actions
                   (pddl-plan :path path :domain domain :problem problem))))
-          (zero-length-plan (c)
+          (zero-length-plan ()
             (format t "~&Skipping a zero-length plan ~a." path)))))
 
 (defun finalize-plans-macros (dpath ppath plans)
