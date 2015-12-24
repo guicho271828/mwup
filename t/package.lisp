@@ -88,5 +88,11 @@
               "t/test3/p01.pddl" "t/test3/domain.pddl"
               (directory (merge-pathnames "t/test3/p01.macro.*"))))))
 
+(test junk
+  (let ((*default-pathname-defaults*
+         (asdf:system-source-directory :mwup)))
+    (finishes
+      (launch "-v" "--junk" "2" "10" "t/test1/p01.pddl" "t/test2/domain.pddl" "-"))))
+
 
 
