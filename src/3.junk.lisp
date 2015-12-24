@@ -71,24 +71,3 @@
         (collect
             (remove-if-not (rcurry #'pddl-typep (type param)) objects))))
 
-
-#+incorrect
-(defun %junk-macros (length probability objects actions macros)
-  (if (zerop length)
-      macros
-      (iter (for m in macros)
-            (collect
-                (%junk-macros
-                 (1- length)
-                 probability
-                 objects
-                 actions
-                 (iter (for a in actions)
-                       (nconcing
-                        (collect-for-all-possible-parameters
-                         a objects
-                         (lambda (params)
-                           (let ((ga (ground-action a params)))
-                             (unless (conflict m a)
-                               (when (< probability (random 1.0d0))
-                                 (merge-ground-action m ga)))))))))))))
