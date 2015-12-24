@@ -26,57 +26,60 @@
 
 ;;; main
 
-(defun maybe-junk-macros (*problem* *domain*)
+(defun maybe-junk-macros (problem domain)
   (ematch *junk*
     (nil nil)
     ((list length percentage)
      (format t "~&Adding junk macros of length ~a, with ~a% probability" length percentage)
      (check-type length (integer 2))
      (check-type percentage (integer 0 100))
-     (handler-bind ((simple-warning #'muffle-warning))
+     (handler-bind ((warning #'muffle-warning))
        (junk-macros length
                     (/ percentage 100)
-                    (objects *problem*)
-                    (actions *domain*))))))
+                    (get-all-ground-actions domain problem)
+                    domain problem)))))
 
-(defun junk-macros (length probability objects actions)
-  (let ((i 0))
-    (iter (for a in actions)
-          (let ((j 0))
-            (collect-for-all-possible-parameters
-             a objects (lambda (&rest params) (declare (ignore params)) (incf i) (incf j)))
-            (format t "~&~a operators for ~a" j a)))
-    (format t "~&~a operators in total" i))
-  (labels ((rec (length macro)
-             (if (zerop length)
-                 (when (< probability (random 1.0))
-                   macro)
-                 (mappend
-                  (lambda (a)
-                    (collect-for-all-possible-parameters
-                     a objects
-                     (lambda (&rest params)
-                       (let ((ga (ground-action a params)))
-                         (unless (conflict macro ga)
-                           (rec (1- length)
-                                (merge-ground-actions macro ga)))))))
-                  actions))))
-    (mappend
-     (lambda (a)
-       (collect-for-all-possible-parameters
-        a objects
-        (lambda (&rest params)
-          (rec (1- length)
-               (ground-action a params)))))
-     actions)))
+(defun junk-macros (length probability actions *domain* *problem*)
+  (let (acc (total 0) (added 0))
+    (format t "~&Number of instantiated ground macros: ~a" (length actions))
+    (labels ((rec (length macro list)
+               (if (zerop length)
+                   (progn
+                     (incf total)
+                     (when (< (random 1.0) probability)
+                       (push list acc)
+                       (incf added)))
+                   (map nil
+                        (lambda (a)
+                          (unless (conflict macro a)
+                            (rec (1- length)
+                                 (merge-ground-actions macro a)
+                                 (cons a list))))
+                        actions))))
+      (map nil
+           (lambda (a)
+             (rec (1- length) a (list a)))
+           actions))
+    (format t "~&Total possible junk macros: ~a~%Added macros: ~a" total added)
+    (map 'list
+         (lambda (actions)
+           (nullary-macro-action (coerce actions 'vector)))
+         acc)))
 
-(defun collect-for-all-possible-parameters (a objects fn)
-  (ematch (all-possible-parameters a objects)
-    ((list* first rest)
-     (apply #'map-product-if fn first rest))))
+(defun get-all-ground-actions (domain problem)
+  (let* ((dir (mktemp "dump"))
+         (pp (write-pddl problem "problem.pddl" dir))
+         (dp (write-pddl domain "domain.pddl" dir))
+         (plans (test-problem-common pp dp
+                                     :verbose nil ;; *verbose* ;; only during debugging --- confuse log parser
+                                     :name "dump-action-clean"
+                                     :time-limit 1 ; satisficing
+                                     :memory 2000000
+                                     :hard-time-limit 3600
+                                     :options "--search-options --search eager(tiebreaking([g()]))")))
+    (assert (= 1 (length plans)))
+    (actions
+     (pddl-plan :domain domain :problem problem
+                :path (first plans)))))
 
-(function-cache:defcached all-possible-parameters (a objects)
-  (iter (for param in (parameters a))
-        (collect
-            (remove-if-not (rcurry #'pddl-typep (type param)) objects))))
 
