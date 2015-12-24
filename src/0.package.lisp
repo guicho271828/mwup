@@ -31,6 +31,10 @@
 (defvar *validation* nil "")
 (defvar *plain* nil "")
 (defvar *lift* nil "")
+(defvar *junk* nil
+  "A list of 2 integers. 1st element is the length of the junk macros.
+2nd element specifies the ratio of macros retained from all macros of that length, in percentage.
+If *junk* is NIL, no junk macros should be added.")
 (defvar *iterated* nil "")
 (defvar *add-macro-cost* nil "Add the action costs to the domain if it is a unit-cost domain.
 Primitive actions are given a cost of 1. Macro actions are given a cost same as its length.
@@ -83,6 +87,10 @@ fd-clean and specifies those equivalent to LAMA2011.")
        (parse rest))
       ((list* "--iterated" rest)
        (setf *iterated* t)
+       (parse rest))
+      ((list* "--junk" length percentage rest)
+       (setf *junk* (list (parse-integer length :junk-allowed t)
+                          (parse-integer percentage :junk-allowed t)))
        (parse rest))
       ;; cost options
       ((list* "--add-macro-cost" rest)

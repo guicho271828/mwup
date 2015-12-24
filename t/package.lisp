@@ -88,5 +88,15 @@
               "t/test3/p01.pddl" "t/test3/domain.pddl"
               (directory (merge-pathnames "t/test3/p01.macro.*"))))))
 
+(test junk
+  (let ((*default-pathname-defaults*
+         (asdf:system-source-directory :mwup)))
+    ;; does not work due to cgroup
+    ;; (finishes
+    ;;   (let (*verbose* *junk*)
+    ;;     (mwup::main "-v" "--junk" "2" "10" "t/test2/p01.pddl" "t/test2/domain.pddl")))
+    (finishes
+      (launch "-v" "--junk" "2" "10" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
+
 
 

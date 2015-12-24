@@ -13,7 +13,9 @@
                                     (multiple-value-call
                                         #'filter-trivial-macros
                                       (enhance problem domain
-                                               (macros-from-plans problem domain macro-paths)))))
+                                               (append
+                                                (maybe-junk-macros problem domain)
+                                                (macros-from-plans problem domain macro-paths))))))
                                 :time-limit 1 ; satisficing
                                 :name *search*
                                 :options *options*
@@ -27,7 +29,7 @@
                 (nullary-macro-action
                  (actions
                   (pddl-plan :path path :domain domain :problem problem))))
-          (zero-length-plan (c)
+          (zero-length-plan ()
             (format t "~&Skipping a zero-length plan ~a." path)))))
 
 (defun finalize-plans-macros (dpath ppath plans)
