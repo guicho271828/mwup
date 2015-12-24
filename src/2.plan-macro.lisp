@@ -13,7 +13,9 @@
                                     (multiple-value-call
                                         #'filter-trivial-macros
                                       (enhance problem domain
-                                               (macros-from-plans problem domain macro-paths)))))
+                                               (append
+                                                (maybe-junk-macros problem domain)
+                                                (macros-from-plans problem domain macro-paths))))))
                                 :time-limit 1 ; satisficing
                                 :name *search*
                                 :options *options*

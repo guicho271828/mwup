@@ -31,6 +31,7 @@
                  (:file :2.plan-macro)
                  (:file :3.enhance)
                  (:file :3.macro-cost)
-                 (:file :3.filter))))
+                 (:file :3.filter)
+                 (:file :3.junk))))
   :description "Macro without Utility Problem"
   :in-order-to ((test-op (test-op :mwup.test))))
