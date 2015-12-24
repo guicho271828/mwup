@@ -22,7 +22,7 @@
                 ((:file "package"))))
   :perform (test-op :after (op c)
                     (uiop:run-program
-                     (format nil "make -C ~a"
+                     (format nil "make -j -C ~a"
                              (asdf:system-source-directory :mwup))
                      :output t
                      :error-output t)
