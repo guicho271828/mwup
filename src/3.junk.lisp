@@ -32,7 +32,7 @@
     ((list length percentage)
      (format t "~&Adding junk macros of length ~a, with ~a% probability" length percentage)
      (check-type length (integer 2))
-     (check-type percentage (integer 0 100))
+     (check-type percentage (real 0 100))
      (handler-bind ((warning #'muffle-warning))
        (junk-macros length
                     (/ percentage 100)
