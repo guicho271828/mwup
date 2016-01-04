@@ -30,6 +30,13 @@
 
 (defvar *start*)
 
+(defun elapsed ()
+  (- (get-universal-time) *start*))
+
+(defun tformat (stream format-string &rest args)
+  (pprint-logical-block (stream nil :per-line-prefix (format nil "[t=~5d]:" (elapsed)))
+    (apply #'format stream format-string args)))
+
 (defun solve (ppath &optional (dpath (find-domain ppath)) &rest macro-paths)
   (setf *start* (get-universal-time))
   (let ((macro-paths (or macro-paths
@@ -41,7 +48,6 @@
                 (plan-macro dpath ppath macro-paths)
               (no-macro ()
                 (plan-plain dpath ppath))))
-      (format t "~&Wall time: ~a sec~%"
-              (- (get-universal-time) *start*)))))
+      (format t "~&Wall time: ~a sec~%" (elapsed)))))
 
 
