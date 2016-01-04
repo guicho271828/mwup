@@ -30,7 +30,7 @@
                  (actions
                   (pddl-plan :path path :domain domain :problem problem))))
           (zero-length-plan ()
-            (format t "~&Skipping a zero-length plan ~a." path)))))
+            (tformat t "Skipping a zero-length plan ~a." path)))))
 
 (defun finalize-plans-macros (dpath ppath plans)
   (and plans
@@ -47,10 +47,10 @@
                 (validate-plan dpath ppath plp :verbose *verbose*))))))
 
 (defun solve-problem-enhancing (problem method &rest test-problem-args)
-  (format t "~&Enhancing the problem with macros.")
+  (tformat t "Enhancing the problem with macros.")
   (multiple-value-bind (eproblem edomain macros) (funcall method problem)
-    (format t "~&Enhancement finished on:~%   ~a~%-> ~a" (name problem) (name eproblem))
-    (format t "~&Solving the enhanced problem with the main planner ~a." *search*)
+    (tformat t "Enhancement finished on:~%   ~a~%-> ~a" (name problem) (name eproblem))
+    (tformat t "Solving the enhanced problem with the main planner ~a." *search*)
     (unless *enhance-only*
       (when (zerop (length macros)) (signal 'no-macro))
       (let* ((dir (mktemp "enhanced"))
@@ -58,17 +58,17 @@
              (edp (write-pddl edomain "edomain.pddl" dir))
              (plans (handler-bind ((trivial-signal:unix-signal
                                     (lambda (c)
-                                      (format t "~&main search terminated")
+                                      (tformat t "main search terminated")
                                       (invoke-restart
                                        (find-restart 'pddl:finish c)))))
                       (apply #'test-problem-common epp edp test-problem-args))))
-        (format t "~&~a plans found." (length plans))
+        (tformat t "~a plans found." (length plans))
         (when *validation*
           (iter (for plp in plans)
                 (for i from 0)
-                (format t "~% validating plan ~a." i)
+                (tformat t "~% validating plan ~a." i)
                 (validate-plan edp epp plp :verbose *verbose*)))
-        (format t "~%decoding the result plan.")
+        (tformat t "~%decoding the result plan.")
         (mapcar (lambda (plan i)
                   (terpri)
                   (block nil

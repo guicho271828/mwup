@@ -20,11 +20,11 @@
             (make-pathname :defaults problem-path :name (format nil "~a-domain" (pathname-name problem-path)))))))
 
 (defun find-macros (problem-path)
-  (format t "~&finding macros...")
+  (tformat t "~&finding macros...")
   (let ((wild (merge-pathnames (format nil "~a.macro*.*" (pathname-name problem-path))
                                problem-path)))
-    (print wild)
-    (print (directory wild))))
+    (tformat t "~%~a" wild)
+    (tformat t "~%~a" (directory wild))))
 
 (define-condition no-macro () ())
 
@@ -34,7 +34,8 @@
   (- (get-universal-time) *start*))
 
 (defun tformat (stream format-string &rest args)
-  (pprint-logical-block (stream nil :per-line-prefix (format nil "[t=~5d]:" (elapsed)))
+  (fresh-line stream)
+  (pprint-logical-block (stream nil :per-line-prefix (format nil "~9@<(t=~d)~>" (elapsed)))
     (apply #'format stream format-string args)))
 
 (defun solve (ppath &optional (dpath (find-domain ppath)) &rest macro-paths)

@@ -13,7 +13,7 @@
      dpath ppath
      (handler-bind ((trivial-signal:unix-signal
                      (lambda (c)
-                       (format t "~&plain search terminated")
+                       (tformat t "plain search terminated")
                        (invoke-restart
                         (find-restart 'pddl:finish c)))))
        (if *remove-cost*

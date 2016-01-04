@@ -30,14 +30,14 @@
   (ematch *junk*
     (nil nil)
     ((list length percentage)
-     (format t "~&Adding junk macros of length ~a, with ~a% probability" length percentage)
+     (tformat t "Adding junk macros of length ~a, with ~a% probability" length percentage)
      (check-type length (integer 2))
      (check-type percentage (real 0 100))
      ((lambda (macros)
         (ematch *junk-limit*
           (nil macros)
           (count
-           (format t "~&Randomly pruning junk macros down to ~a macros" count)
+           (tformat t "Randomly pruning junk macros down to ~a macros" count)
            (subseq (shuffle macros) 0 count))))
       (handler-bind ((warning #'muffle-warning))
         (junk-macros length
@@ -47,7 +47,7 @@
 
 (defun junk-macros (length probability actions *domain* *problem*)
   (let (acc (total 0) (added 0))
-    (format t "~&Number of instantiated ground actions: ~a" (length actions))
+    (tformat t "Number of instantiated ground actions: ~a" (length actions))
     (labels ((rec (length macro list)
                (if (zerop length)
                    (progn
@@ -66,7 +66,7 @@
            (lambda (a)
              (rec (1- length) a (list a)))
            actions))
-    (format t "~&Total possible junk macros: ~a~%Added macros: ~a" total added)
+    (tformat t "Total possible junk macros: ~a~%Added macros: ~a" total added)
     (map 'list
          (lambda (actions)
            (nullary-macro-action (coerce actions 'vector)))

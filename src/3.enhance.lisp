@@ -1,7 +1,7 @@
 (in-package :mwup)
 
 (defun enhance (problem domain macros)
-  (format t "~&Enhancing problem ~a and domain ~a with ~a macros" problem domain (length macros))
+  (tformat t "Enhancing problem ~a and domain ~a with ~a macros" problem domain (length macros))
   (ematch domain
     ((pddl-domain name actions constants predicates)
      (let* ((edomain (shallow-copy domain
@@ -32,7 +32,7 @@
                                                         (objects problem))
                                                 (init problem))
                                         (init problem)))))
-       (format t "~&Max_number_of_parameters: ~a"
+       (tformat t "Max_number_of_parameters: ~a"
                (reduce #'max (mapcar (lambda (a) (length (parameters a)))
                                      (actions edomain))))
        (values eproblem edomain macros)))))
