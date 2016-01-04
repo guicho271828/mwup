@@ -100,5 +100,15 @@
     (finishes
       (launch "-v" "--junk" "2" "0.5" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
 
+(test junk-limit
+  (let ((*default-pathname-defaults*
+         (asdf:system-source-directory :mwup)))
+    ;; does not work due to cgroup
+    ;; (finishes
+    ;;   (let (*verbose* *junk*)
+    ;;     (mwup::main "-v" "--junk" "2" "10" "t/test2/p01.pddl" "t/test2/domain.pddl")))
+    (finishes
+      (launch "-v" "--junk" "2" "10" "--junk-limit" "5" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
+
 
 

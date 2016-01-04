@@ -33,11 +33,17 @@
      (format t "~&Adding junk macros of length ~a, with ~a% probability" length percentage)
      (check-type length (integer 2))
      (check-type percentage (real 0 100))
-     (handler-bind ((warning #'muffle-warning))
-       (junk-macros length
-                    (/ percentage 100)
-                    (get-all-ground-actions domain problem)
-                    domain problem)))))
+     ((lambda (macros)
+        (ematch *junk-limit*
+          (nil macros)
+          (count
+           (format t "~&Randomly pruning junk macros down to ~a macros" count)
+           (subseq (shuffle macros) 0 count))))
+      (handler-bind ((warning #'muffle-warning))
+        (junk-macros length
+                     (/ percentage 100)
+                     (get-all-ground-actions domain problem)
+                     domain problem))))))
 
 (defun junk-macros (length probability actions *domain* *problem*)
   (let (acc (total 0) (added 0))

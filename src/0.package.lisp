@@ -35,6 +35,8 @@
   "A list of 2 integers. 1st element is the length of the junk macros.
 2nd element specifies the ratio of macros retained from all macros of that length, in percentage.
 If *junk* is NIL, no junk macros should be added.")
+(defvar *junk-limit* nil
+  "The maximum number of junk macros")
 (defvar *iterated* nil "")
 (defvar *add-macro-cost* nil "Add the action costs to the domain if it is a unit-cost domain.
 Primitive actions are given a cost of 1. Macro actions are given a cost same as its length.
@@ -91,6 +93,9 @@ fd-clean and specifies those equivalent to LAMA2011.")
       ((list* "--junk" length percentage rest)
        (setf *junk* (list (read-from-string length)
                           (read-from-string percentage)))
+       (parse rest))
+      ((list* "--junk-limit" count rest)
+       (setf *junk-limit* (read-from-string count))
        (parse rest))
       ;; cost options
       ((list* "--add-macro-cost" rest)
