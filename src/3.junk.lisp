@@ -47,7 +47,7 @@
 
 (defun junk-macros (length probability actions *domain* *problem*)
   (let (acc (total 0) (added 0))
-    (format t "~&Number of instantiated ground macros: ~a" (length actions))
+    (format t "~&Number of instantiated ground actions: ~a" (length actions))
     (labels ((rec (length macro list)
                (if (zerop length)
                    (progn
