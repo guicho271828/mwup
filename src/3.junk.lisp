@@ -38,7 +38,7 @@
           (nil macros)
           (count
            (tformat t "Randomly pruning junk macros down to ~a macros" count)
-           (subseq (shuffle macros) 0 count))))
+           (subseq (shuffle macros) 0 (min count (length macros))))))
       (handler-bind ((warning #'muffle-warning))
         (junk-macros length
                      (/ percentage 100)
