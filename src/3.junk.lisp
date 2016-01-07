@@ -29,32 +29,54 @@
 (defun maybe-junk-macros (problem domain)
   (ematch *junk*
     (nil nil)
-    ((list length percentage)
-     (tformat t "Adding junk macros of length ~a, with ~a% probability" length percentage)
+    ((list length quantity)
+     (tformat t "Adding junk macros: length: ~a quantity: ~A" length quantity)
      (check-type length (integer 2))
-     (check-type percentage (real 0 100))
-     ((lambda (macros)
-        (ematch *junk-limit*
-          (nil macros)
-          (count
-           (tformat t "Randomly pruning junk macros down to ~a macros" count)
-           (subseq (shuffle macros) 0 (min count (length macros))))))
-      (handler-bind ((warning #'muffle-warning))
-        (junk-macros length
-                     (/ percentage 100)
-                     (get-all-ground-actions domain problem)
-                     domain problem))))))
+     (check-type quantity (integer 0))
+     (handler-bind ((warning #'muffle-warning))
+       (junk-macros length
+                    quantity
+                    (get-all-ground-actions domain problem)
+                    domain problem)))))
 
-(defun junk-macros (length probability actions *domain* *problem*)
-  (let (acc (total 0) (added 0))
+;; index begins from 1
+;; (loop for i from 1 to k
+;;       do
+;;    (setf (aref r i) (aref s i)))
+;; (loop for i from (1+ k) to n
+;;       for j = (1+ (random i))
+;;       do
+;;    (if (<= j k)
+;;        (setf (aref r i) (aref s i))))
+
+;; 0-index
+;; (loop for i below k
+;;       do
+;;    (setf (aref r i) (aref s i)))
+;; (loop for i from k below n
+;;       for j = (random i)
+;;       do
+;;    (if (<= j k)
+;;        (setf (aref r i) (aref s i))))
+
+(defun junk-macros (length quantity actions *domain* *problem*)
+  "Use Reservoir Sampling (Algorithm R by Jeffrey Vitter) https://en.wikipedia.org/wiki/Reservoir_sampling
+quantity = k
+count    = i
+"
+  (let ((count 0)
+        (reservoir (make-array quantity)))
     (tformat t "Number of instantiated ground actions: ~a" (length actions))
+    (tformat t "Generating macro actions using Reservoir Sampling")
     (labels ((rec (length macro list)
                (if (zerop length)
                    (progn
-                     (incf total)
-                     (when (< (random 1.0) probability)
-                       (push list acc)
-                       (incf added)))
+                     (if (< count quantity)
+                         (setf (aref reservoir count) list)
+                         (let ((j (random count)))
+                           (when (< j quantity)
+                             (setf (aref reservoir j) list))))
+                     (incf count))
                    (map nil
                         (lambda (a)
                           (unless (conflict macro a)
@@ -66,11 +88,11 @@
            (lambda (a)
              (rec (1- length) a (list a)))
            actions))
-    (tformat t "Total possible junk macros: ~a~%Added macros: ~a" total added)
+    (tformat t "Total possible junk macros: ~a" count)
     (map 'list
          (lambda (actions)
            (nullary-macro-action (coerce actions 'vector)))
-         acc)))
+         reservoir)))
 
 (defun get-all-ground-actions (domain problem)
   (let* ((dir (mktemp "dump"))
