@@ -89,10 +89,10 @@ count    = i
              (rec (1- length) a (list a)))
            actions))
     (tformat t "Total possible junk macros: ~a" count)
-    (map 'list
-         (lambda (actions)
-           (nullary-macro-action (coerce actions 'vector)))
-         reservoir)))
+    (loop for actions across reservoir
+          when (listp actions)
+          collect
+          (nullary-macro-action (coerce actions 'vector)))))
 
 (defun get-all-ground-actions (domain problem)
   (let* ((dir (mktemp "dump"))
