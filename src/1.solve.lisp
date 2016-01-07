@@ -20,11 +20,12 @@
             (make-pathname :defaults problem-path :name (format nil "~a-domain" (pathname-name problem-path)))))))
 
 (defun find-macros (problem-path)
-  (tformat t "~&finding macros...")
+  (tformat t "finding macros...")
   (let ((wild (merge-pathnames (format nil "~a.macro*.*" (pathname-name problem-path))
                                problem-path)))
-    (tformat t "~%~a" wild)
-    (tformat t "~%~a" (directory wild))))
+    (tformat t "~a" wild)
+    (tformat t "~a" (directory wild))
+    (directory wild)))
 
 (define-condition no-macro () ())
 
