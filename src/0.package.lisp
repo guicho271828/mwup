@@ -106,6 +106,10 @@ fd-clean and specifies those equivalent to LAMA2011.")
         (lambda (options rest)
           (setf *options* options)
           (parse rest))))
+      ((list* "--megabytes-consed-between-gcs" bytes rest)
+       (setf (sb-ext:bytes-consed-between-gcs)
+             (* 1024 1024 (parse-integer bytes)))
+       (parse rest))
       ((list* _ _)
        (format t "~%; Build date : ~a~%" *build-date*)
        (uiop:quit
@@ -115,6 +119,7 @@ fd-clean and specifies those equivalent to LAMA2011.")
                ~%~@{~4t~40<~(~a~)~;~{~a ~}~> : ~@(~a~)~%~}"
                '-----------------debug-options---------- nil "-------------------------------"
                '-v nil "Become more verbose"
+               '--megabytes-consed-between-gcs '(megabytes) "GC tuning"
                '--validation nil "run the validator after the planning"
                '--------------macro-options---------- nil "-------------------------------"
                '--plain nil "Do not add the macros."

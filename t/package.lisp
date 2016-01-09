@@ -114,5 +114,9 @@
     (finishes
      (launch "-v" "--junk" "2" "5000" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
 
-
+(test gc
+  (let ((*default-pathname-defaults*
+         (asdf:system-source-directory :mwup)))
+    (finishes
+     (launch "-v" "--junk" "2" "10" "--megabytes-consed-between-gcs" "10" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
 
