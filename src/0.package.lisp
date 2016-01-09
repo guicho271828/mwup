@@ -118,6 +118,7 @@ fd-clean and specifies those equivalent to LAMA2011.")
                '--validation nil "run the validator after the planning"
                '--------------macro-options---------- nil "-------------------------------"
                '--plain nil "Do not add the macros."
+               '--junk '(length quantity) "Generates and samples a fixed number of randomly generated macros"
                '--force-lifted nil "Lift the macro actions."
                '--split '(method) "Disables the macro-action grounding."
                '----------computational-resource-------- nil "-------------------------------"
