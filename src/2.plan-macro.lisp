@@ -47,8 +47,11 @@
                 (validate-plan dpath ppath plp :verbose *verbose*))))))
 
 (defun solve-problem-enhancing (problem method &rest test-problem-args)
+  (room t)
+  (tformat t "Collecting Garbage...")
   (sb-ext:gc :full t)
-  (room)
+  (tformat t "GC finished.")
+  (room t)
   (tformat t "Enhancing the problem with macros.")
   (multiple-value-bind (eproblem edomain macros) (funcall method problem)
     (tformat t "Enhancement finished on:~%   ~a~%-> ~a" (name problem) (name eproblem))
