@@ -16,6 +16,7 @@
         (time (let ((mwup::*start* (get-universal-time)))
                 (mwup::suppress
                   (mwup::junk-macros length quantity (mwup::get-all-ground-actions domain problem) domain problem))))
+        #+nil
         (time (let ((mwup::*start* (get-universal-time)))
                 (mwup::suppress
                   (mwup::junk-macros2 length quantity (mwup::get-all-ground-actions domain problem) domain problem))))

@@ -99,6 +99,7 @@ count    = i
             (collect
                 (nullary-macro-action (nreverse (coerce actions 'vector))))))))
 
+#+nil
 (defun junk-macros2 (length quantity actions *domain* *problem*)
   "Use Reservoir Sampling (Algorithm R by Jeffrey Vitter) https://en.wikipedia.org/wiki/Reservoir_sampling
 quantity = k
