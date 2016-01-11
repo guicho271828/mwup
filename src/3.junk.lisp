@@ -34,10 +34,15 @@
      (check-type length (integer 2))
      (check-type quantity (integer 0))
      (handler-bind ((warning #'muffle-warning))
-       (junk-macros length
-                    quantity
-                    (get-all-ground-actions domain problem)
-                    domain problem)))))
+       (if *fastjunk*
+           (junk-macros3 length
+                         quantity
+                         (get-all-ground-actions domain problem)
+                         domain problem)
+           (junk-macros length
+                        quantity
+                        (get-all-ground-actions domain problem)
+                        domain problem))))))
 
 ;; index begins from 1
 ;; (loop for i from 1 to k
@@ -89,10 +94,10 @@ count    = i
              (rec (1- length) a (list a)))
            actions))
     (tformat t "Total possible junk macros: ~a" count)
-    (loop for actions across reservoir
-          when (listp actions)
-          collect
-          (nullary-macro-action (nreverse (coerce actions 'vector))))))
+    (iter (for actions in-vector reservoir)
+          (when (listp actions)
+            (collect
+                (nullary-macro-action (nreverse (coerce actions 'vector))))))))
 
 (defun junk-macros2 (length quantity actions *domain* *problem*)
   "Use Reservoir Sampling (Algorithm R by Jeffrey Vitter) https://en.wikipedia.org/wiki/Reservoir_sampling
@@ -130,10 +135,10 @@ optimized using type information, but not that effective since the inner functio
              (rec (1- length) a (list a)))
            actions))
     (tformat t "Total possible junk macros: ~a" count)
-    (loop for actions across reservoir
-          when (listp actions)
-          collect
-          (nullary-macro-action (nreverse (coerce actions 'vector))))))
+    (iter (for actions in-vector reservoir)
+          (when (listp actions)
+           (collect
+               (nullary-macro-action (nreverse (coerce actions 'vector))))))))
 
 (defun junk-macros3 (length quantity actions *domain* *problem*)
   "Faster alternative which randomly selects from the next applicable action.
@@ -141,7 +146,7 @@ This sacrifices the uniformness of the sampling because the branches with
 less siblings have high probability of being selected."
   (let ((hash (make-hash-table :test #'equal)))
     (tformat t "Number of instantiated ground actions: ~a" (length actions))
-    (tformat t "Generating macro actions using Reservoir Sampling")
+    (tformat t "Generating macro actions using Naive Sampling")
     (labels ((rec (length macro list)
                (if (zerop length)
                    list
@@ -158,8 +163,6 @@ less siblings have high probability of being selected."
             (finally
              (return
                (iter (for (path macro) in-hashtable hash)
-                     ;;(print (mapcar #'name path))
-                     (print path)
                      (collect macro))))))))
 
 (defun get-all-ground-actions (domain problem)

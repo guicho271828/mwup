@@ -120,3 +120,10 @@
     (finishes
      (launch "-v" "--validation" "--junk" "2" "10" "--megabytes-consed-between-gcs" "10" "t/test3/p01.pddl" "t/test3/domain.pddl"))))
 
+
+(test fastjunk
+  (let ((*default-pathname-defaults*
+         (asdf:system-source-directory :mwup)))
+    (finishes
+     (launch "-v" "--validation" "--fastjunk" "2" "10" "t/test3/p01.pddl" "t/test3/domain.pddl"))))
+
