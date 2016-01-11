@@ -1,39 +1,84 @@
-(define (domain depot)
-(:predicates
-	 (at ?x ?y) (on ?x ?y) (in ?x ?y) (lifting ?x ?y) (available ?x) (clear ?x)(place ?x) (locatable ?x) (depot ?x) (distributor ?x) (truck ?x) (hoist ?x) (surface ?x) (pallet ?x) (crate ?x) )
-(:action drive
- :parameters ( ?x ?y ?z)
- :precondition
-	(and (truck ?x) (place ?y) (place ?z)  (at ?x ?y))
- :effect
-	(and (at ?x ?z) (not (at ?x ?y))))
+(define (domain driverlog)
+  (:requirements :strips) 
+  (:predicates 	(OBJ ?obj)
+	       	(TRUCK ?truck)
+               	(LOCATION ?loc)
+		(driver ?d)
+		(at ?obj ?loc)
+		(in ?obj1 ?obj)
+		(driving ?d ?v)
+		(link ?x ?y) (path ?x ?y)
+		(empty ?v)
+)
 
-(:action lift
- :parameters ( ?x ?y ?z ?p)
- :precondition
-	(and (hoist ?x) (crate ?y) (surface ?z) (place ?p)  (at ?x ?p) (available ?x) (at ?y ?p) (on ?y ?z) (clear ?y))
- :effect
-	(and (lifting ?x ?y) (clear ?z) (not (at ?y ?p)) (not (clear ?y)) (not (available ?x)) (not (on ?y ?z))))
 
-(:action drop
- :parameters ( ?x ?y ?z ?p)
- :precondition
-	(and (hoist ?x) (crate ?y) (surface ?z) (place ?p)  (at ?x ?p) (at ?z ?p) (clear ?z) (lifting ?x ?y))
- :effect
-	(and (available ?x) (at ?y ?p) (clear ?y) (on ?y ?z) (not (lifting ?x ?y)) (not (clear ?z))))
+(:action LOAD-TRUCK
+  :parameters
+   (?obj
+    ?truck
+    ?loc)
+  :precondition
+   (and (OBJ ?obj) (TRUCK ?truck) (LOCATION ?loc)
+   (at ?truck ?loc) (at ?obj ?loc))
+  :effect
+   (and (not (at ?obj ?loc)) (in ?obj ?truck)))
 
-(:action load
- :parameters ( ?x ?y ?z ?p)
- :precondition
-	(and (hoist ?x) (crate ?y) (truck ?z) (place ?p)  (at ?x ?p) (at ?z ?p) (lifting ?x ?y))
- :effect
-	(and (in ?y ?z) (available ?x) (not (lifting ?x ?y))))
+(:action UNLOAD-TRUCK
+  :parameters
+   (?obj
+    ?truck
+    ?loc)
+  :precondition
+   (and (OBJ ?obj) (TRUCK ?truck) (LOCATION ?loc)
+        (at ?truck ?loc) (in ?obj ?truck))
+  :effect
+   (and (not (in ?obj ?truck)) (at ?obj ?loc)))
 
-(:action unload
- :parameters ( ?x ?y ?z ?p)
- :precondition
-	(and (hoist ?x) (crate ?y) (truck ?z) (place ?p)  (at ?x ?p) (at ?z ?p) (available ?x) (in ?y ?z))
- :effect
-	(and (lifting ?x ?y) (not (in ?y ?z)) (not (available ?x))))
+(:action BOARD-TRUCK
+  :parameters
+   (?driver
+    ?truck
+    ?loc)
+  :precondition
+   (and (DRIVER ?driver) (TRUCK ?truck) (LOCATION ?loc)
+   (at ?truck ?loc) (at ?driver ?loc) (empty ?truck))
+  :effect
+   (and (not (at ?driver ?loc)) (driving ?driver ?truck) (not (empty ?truck))))
 
+(:action DISEMBARK-TRUCK
+  :parameters
+   (?driver
+    ?truck
+    ?loc)
+  :precondition
+   (and (DRIVER ?driver) (TRUCK ?truck) (LOCATION ?loc)
+        (at ?truck ?loc) (driving ?driver ?truck))
+  :effect
+   (and (not (driving ?driver ?truck)) (at ?driver ?loc) (empty ?truck)))
+
+(:action DRIVE-TRUCK
+  :parameters
+   (?truck
+    ?loc-from
+    ?loc-to
+    ?driver)
+  :precondition
+   (and (TRUCK ?truck) (LOCATION ?loc-from) (LOCATION ?loc-to) (DRIVER ?driver) 
+   (at ?truck ?loc-from)
+   (driving ?driver ?truck) (link ?loc-from ?loc-to))
+  :effect
+   (and (not (at ?truck ?loc-from)) (at ?truck ?loc-to)))
+
+(:action WALK
+  :parameters
+   (?driver
+    ?loc-from
+    ?loc-to)
+  :precondition
+   (and (DRIVER ?driver) (LOCATION ?loc-from) (LOCATION ?loc-to)
+	(at ?driver ?loc-from) (path ?loc-from ?loc-to))
+  :effect
+   (and (not (at ?driver ?loc-from)) (at ?driver ?loc-to)))
+
+ 
 )
