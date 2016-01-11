@@ -39,12 +39,15 @@
        (let ((actions (get-all-ground-actions domain problem)))
          (if *fastjunk*
              (handler-case
-                 ;; for cases where there are too few ground macros
-                 (junk-macros length
-                              quantity
-                              actions
-                              domain problem)
+                 (progn
+                   (tformat t "Try standard Reservoir Sampling method to get the minimum required number of macros")
+                   ;; for cases where there are too few ground macros
+                   (junk-macros length
+                                quantity
+                                actions
+                                domain problem))
                (minimum-requirement ()
+                 (tformat t "There are required number of macros, switching to the Naive Sampling")
                  (junk-macros3 length
                                quantity
                                actions
