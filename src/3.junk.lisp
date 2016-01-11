@@ -26,6 +26,8 @@
 
 ;;; main
 
+(define-condition minimum-requirement () ())
+
 (defun maybe-junk-macros (problem domain)
   (ematch *junk*
     (nil nil)
@@ -34,15 +36,23 @@
      (check-type length (integer 2))
      (check-type quantity (integer 0))
      (handler-bind ((warning #'muffle-warning))
-       (if *fastjunk*
-           (junk-macros3 length
-                         quantity
-                         (get-all-ground-actions domain problem)
-                         domain problem)
-           (junk-macros length
-                        quantity
-                        (get-all-ground-actions domain problem)
-                        domain problem))))))
+       (let ((actions (get-all-ground-actions domain problem)))
+         (if *fastjunk*
+             (handler-case
+                 ;; for cases where there are too few ground macros
+                 (junk-macros length
+                              quantity
+                              actions
+                              domain problem)
+               (minimum-requirement ()
+                 (junk-macros3 length
+                               quantity
+                               actions
+                               domain problem)))
+             (junk-macros length
+                          quantity
+                          actions
+                          domain problem)))))))
 
 ;; index begins from 1
 ;; (loop for i from 1 to k
@@ -79,6 +89,7 @@ count    = i
                      (if (< count quantity)
                          (setf (aref reservoir count) list)
                          (let ((j (random count)))
+                           (signal 'minimum-requirement)
                            (when (< j quantity)
                              (setf (aref reservoir j) list))))
                      (incf count))
