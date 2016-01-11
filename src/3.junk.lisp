@@ -135,6 +135,33 @@ optimized using type information, but not that effective since the inner functio
           collect
           (nullary-macro-action (coerce actions 'vector)))))
 
+(defun junk-macros3 (length quantity actions *domain* *problem*)
+  "Faster alternative which randomly selects from the next applicable action.
+This sacrifices the uniformness of the sampling because the branches with
+less siblings have high probability of being selected."
+  (let ((hash (make-hash-table :test #'equal)))
+    (tformat t "Number of instantiated ground actions: ~a" (length actions))
+    (tformat t "Generating macro actions using Reservoir Sampling")
+    (labels ((rec (length macro list)
+               (if (zerop length)
+                   list
+                   (let ((a (random-elt (remove-if (curry #'conflict macro) actions))))
+                     (rec (1- length)
+                          (merge-ground-actions macro a)
+                          (cons a list))))))
+      (iter (generate count below quantity)
+            (for a = (random-elt actions))
+            (for path = (rec (1- length) a (list a)))
+            (unless (gethash path hash)
+              (setf (gethash path hash) (nullary-macro-action (coerce path 'vector)))
+              (next count))
+            (finally
+             (return
+               (iter (for (path macro) in-hashtable hash)
+                     ;;(print (mapcar #'name path))
+                     (print path)
+                     (collect macro))))))))
+
 (defun get-all-ground-actions (domain problem)
   (let* ((dir (mktemp "dump"))
          (pp (write-pddl problem "problem.pddl" dir))
