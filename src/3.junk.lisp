@@ -154,7 +154,7 @@ less siblings have high probability of being selected."
                      (rec (1- length)
                           (merge-ground-actions macro a)
                           (cons a list))))))
-      (iter (generate count below quantity)
+      (iter (generate count from 1 below quantity)
             (for a = (random-elt actions))
             (for path = (rec (1- length) a (list a)))
             (unless (gethash path hash)
