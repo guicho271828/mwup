@@ -125,5 +125,7 @@
   (let ((*default-pathname-defaults*
          (asdf:system-source-directory :mwup)))
     (finishes
-     (launch "-v" "--validation" "--fastjunk" "2" "10" "t/test3/p01.pddl" "t/test3/domain.pddl"))))
+     (launch "-v" "--validation" "--fastjunk" "2" "10" "t/test3/p01.pddl" "t/test3/domain.pddl"))
+    (finishes
+     (launch "-v" "--validation" "--fastjunk" "2" "5000" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
 
