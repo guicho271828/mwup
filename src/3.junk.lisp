@@ -34,28 +34,32 @@
     ((list length quantity)
      (tformat t "Adding junk macros: length: ~a quantity: ~A" length quantity)
      (check-type length (integer 2))
-     (check-type quantity (integer 0))
+     (check-type quantity (or (integer 0) (eql :infinity)))
      (handler-bind ((warning #'muffle-warning))
        (let ((actions (get-all-ground-actions domain problem)))
-         (if *fastjunk*
-             (handler-case
-                 (progn
-                   (tformat t "Try standard Reservoir Sampling method to get the minimum required number of macros")
-                   ;; for cases where there are too few ground macros
-                   (junk-macros length
-                                quantity
-                                actions
-                                domain problem))
-               (minimum-requirement ()
-                 (tformat t "There are required number of macros, switching to the Naive Sampling")
-                 (junk-macros3 length
-                               quantity
-                               actions
-                               domain problem)))
-             (junk-macros length
-                          quantity
-                          actions
-                          domain problem)))))))
+         (if (integerp quantity)
+             (if *fastjunk*
+                 (handler-case
+                     (progn
+                       (tformat t "Try standard Reservoir Sampling method to get the minimum required number of macros")
+                       ;; for cases where there are too few ground macros
+                       (junk-macros length
+                                    quantity
+                                    actions
+                                    domain problem))
+                   (minimum-requirement ()
+                     (tformat t "There are required number of macros, switching to the Naive Sampling")
+                     (junk-macros3 length
+                                   quantity
+                                   actions
+                                   domain problem)))
+                 (junk-macros length
+                              quantity
+                              actions
+                              domain problem))
+             (all-macros length
+                         actions
+                         domain problem)))))))
 
 ;; index begins from 1
 ;; (loop for i from 1 to k
@@ -182,6 +186,30 @@ less siblings have high probability of being selected."
              (return
                (iter (for (path macro) in-hashtable hash)
                      (collect macro))))))))
+
+(defun all-macros (length actions *domain* *problem*)
+  "Generate all macro actions of length LENGTH"
+  (let ((count 0) acc)
+    (tformat t "Number of instantiated ground actions: ~a" (length actions))
+    (tformat t "Generating all macro actions")
+    (labels ((rec (length macro list)
+               (if (zerop length)
+                   (progn
+                     (push (nullary-macro-action (nreverse (coerce list 'vector))) acc)
+                     (incf count))
+                   (map nil
+                        (lambda (a)
+                          (unless (conflict macro a)
+                            (rec (1- length)
+                                 (merge-ground-actions macro a)
+                                 (cons a list))))
+                        actions))))
+      (map nil
+           (lambda (a)
+             (rec (1- length) a (list a)))
+           actions))
+    (tformat t "Total possible junk macros: ~a" count)
+    acc))
 
 (defun get-all-ground-actions (domain problem)
   (let* ((dir (mktemp "dump"))
