@@ -94,29 +94,29 @@
     ;; does not work due to cgroup
     ;; (finishes
     ;;   (let (*verbose* *junk*)
-    ;;     (mwup::main "-v" "--junk" "2" "10" "t/test2/p01.pddl" "t/test2/domain.pddl")))
+    ;;     (mwup::main "-v" "--junk" "2" "10" "t/test3/p01.pddl" "t/test3/domain.pddl")))
     (finishes
-      (launch "-v" "--junk" "2" "10" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+      (launch "-v" "--validation" "--junk" "2" "10" "t/test3/p01.pddl" "t/test3/domain.pddl"))
     (signals error
       ;; old arguments: expect probability
-      (launch "-v" "--junk" "2" "0.5" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
+      (launch "-v" "--validation" "--junk" "2" "0.5" "t/test3/p01.pddl" "t/test3/domain.pddl"))))
 
 (test junk-limit
   (let ((*default-pathname-defaults*
          (asdf:system-source-directory :mwup)))
     (signals error
       ;; old arguments
-      (launch "-v" "--junk" "2" "10" "--junk-limit" "5" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+      (launch "-v" "--junk" "2" "10" "--junk-limit" "5" "t/test3/p01.pddl" "t/test3/domain.pddl"))
     (signals error
-      (launch "-v" "--junk" "2" "10" "--junk-limit" "5000" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+      (launch "-v" "--junk" "2" "10" "--junk-limit" "5000" "t/test3/p01.pddl" "t/test3/domain.pddl"))
     (finishes
-     (launch "-v" "--junk" "2" "10" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+     (launch "-v" "--validation" "--junk" "2" "10" "t/test3/p01.pddl" "t/test3/domain.pddl"))
     (finishes
-     (launch "-v" "--junk" "2" "5000" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
+     (launch "-v" "--validation" "--junk" "2" "5000" "t/test3/p01.pddl" "t/test3/domain.pddl"))))
 
 (test gc
   (let ((*default-pathname-defaults*
          (asdf:system-source-directory :mwup)))
     (finishes
-     (launch "-v" "--junk" "2" "10" "--megabytes-consed-between-gcs" "10" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
+     (launch "-v" "--validation" "--junk" "2" "10" "--megabytes-consed-between-gcs" "10" "t/test3/p01.pddl" "t/test3/domain.pddl"))))
 
