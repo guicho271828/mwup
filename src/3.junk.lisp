@@ -92,7 +92,7 @@ count    = i
     (loop for actions across reservoir
           when (listp actions)
           collect
-          (nullary-macro-action (coerce actions 'vector)))))
+          (nullary-macro-action (nreverse (coerce actions 'vector))))))
 
 (defun junk-macros2 (length quantity actions *domain* *problem*)
   "Use Reservoir Sampling (Algorithm R by Jeffrey Vitter) https://en.wikipedia.org/wiki/Reservoir_sampling
@@ -133,7 +133,7 @@ optimized using type information, but not that effective since the inner functio
     (loop for actions across reservoir
           when (listp actions)
           collect
-          (nullary-macro-action (coerce actions 'vector)))))
+          (nullary-macro-action (nreverse (coerce actions 'vector))))))
 
 (defun junk-macros3 (length quantity actions *domain* *problem*)
   "Faster alternative which randomly selects from the next applicable action.
@@ -153,7 +153,7 @@ less siblings have high probability of being selected."
             (for a = (random-elt actions))
             (for path = (rec (1- length) a (list a)))
             (unless (gethash path hash)
-              (setf (gethash path hash) (nullary-macro-action (coerce path 'vector)))
+              (setf (gethash path hash) (nullary-macro-action (nreverse (coerce path 'vector))))
               (next count))
             (finally
              (return
