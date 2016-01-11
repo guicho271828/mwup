@@ -129,3 +129,15 @@
     (finishes
      (launch "-v" "--validation" "--fastjunk" "2" "5000" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
 
+(test alljunk
+  (let ((*default-pathname-defaults*
+         (asdf:system-source-directory :mwup)))
+    (finishes
+     (launch "-v" "--validation" "--junk" "2" ":infinity" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (finishes
+     (launch "-v" "--validation" "--fastjunk" "2" ":infinity" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (signals error
+     (launch "-v" "--validation" "--junk" "2" ":someother" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (signals error
+     (launch "-v" "--validation" "--fastjunk" "2" ":someother" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
+
