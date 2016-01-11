@@ -94,6 +94,47 @@ count    = i
           collect
           (nullary-macro-action (coerce actions 'vector)))))
 
+(defun junk-macros2 (length quantity actions *domain* *problem*)
+  "Use Reservoir Sampling (Algorithm R by Jeffrey Vitter) https://en.wikipedia.org/wiki/Reservoir_sampling
+quantity = k
+count    = i
+optimized using type information, but not that effective since the inner functions are slow
+"
+  (declare (optimize (speed 3) (debug 0) (safety 0))
+           ((SIMPLE-ARRAY standard-object (*)) actions)
+           (fixnum length quantity))
+  (let ((count 0)
+        (reservoir (make-array quantity)))
+    (declare (fixnum count))
+    (tformat t "Number of instantiated ground actions: ~a" (length actions))
+    (tformat t "Generating macro actions using Reservoir Sampling")
+    (labels ((rec (length macro list)
+               (declare (fixnum length quantity))
+               (if (zerop length)
+                   (progn
+                     (if (< count quantity)
+                         (setf (aref reservoir count) list)
+                         (let ((j (random count)))
+                           (when (< j quantity)
+                             (setf (aref reservoir j) list))))
+                     (incf count))
+                   (map nil
+                        (lambda (a)
+                          (unless (conflict macro a)
+                            (rec (1- length)
+                                 (merge-ground-actions macro a)
+                                 (cons a list))))
+                        actions))))
+      (map nil
+           (lambda (a)
+             (rec (1- length) a (list a)))
+           actions))
+    (tformat t "Total possible junk macros: ~a" count)
+    (loop for actions across reservoir
+          when (listp actions)
+          collect
+          (nullary-macro-action (coerce actions 'vector)))))
+
 (defun get-all-ground-actions (domain problem)
   (let* ((dir (mktemp "dump"))
          (pp (write-pddl problem "problem.pddl" dir))
