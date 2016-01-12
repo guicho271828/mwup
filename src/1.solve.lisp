@@ -41,6 +41,7 @@
 
 (defun solve (ppath &optional (dpath (find-domain ppath)) &rest macro-paths)
   (setf *start* (get-universal-time))
+  (setf *random-state* (sb-ext:seed-random-state *seed*))
   (let ((macro-paths (or macro-paths
                          (find-macros ppath))))
     (unwind-protect

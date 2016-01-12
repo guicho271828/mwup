@@ -31,6 +31,7 @@
 (defvar *validation* nil "")
 (defvar *plain* nil "")
 (defvar *lift* nil "")
+(defvar *seed* t "an argument to make-random-state.")
 (defvar *junk* nil
   "A list of 2 integers. 1st element is the length of the junk macros.
 2nd element specifies the number of junk macro.
@@ -98,6 +99,9 @@ fd-clean and specifies those equivalent to LAMA2011.")
        (setf *fastjunk* t)
        (format t "~& Fast junk generation activated, sacrificing uniformness")
        (parse (list* "--junk" rest)))
+      ((list* "--seed" seed rest)
+       (setf *seed* (read-from-string seed))
+       (parse rest))
       ;; cost options
       ((list* "--add-macro-cost" rest)
        (setf *add-macro-cost* t)
@@ -125,6 +129,7 @@ fd-clean and specifies those equivalent to LAMA2011.")
                ~%~@{~4t~40<~(~a~)~;~{~a ~}~> : ~@(~a~)~%~}"
                '-----------------debug-options---------- nil "-------------------------------"
                '-v nil "Become more verbose"
+               '--seed '(seed) "Random seed, either an unsigned integer or a symbol T, which means a fresh random value."
                '--megabytes-consed-between-gcs '(megabytes) "GC tuning"
                '--validation nil "run the validator after the planning"
                '--------------macro-options---------- nil "-------------------------------"
