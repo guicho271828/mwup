@@ -7,7 +7,7 @@ submodules:
 	git submodule update --init --recursive --remote
 
 mwup: $(shell find -name "*.lisp") submodules
-	ros dynamic-space-size=2000 -- -e "(setf ql:*local-project-directories* '(#p\"$(CURDIR)/\"))(ql:register-local-projects)" dump executable ./mwup.ros
+	ros dynamic-space-size=16000 -- -e "(setf ql:*local-project-directories* '(#p\"$(CURDIR)/\"))(ql:register-local-projects)" dump executable ./mwup.ros
 
 clean:
 	rm mwup
