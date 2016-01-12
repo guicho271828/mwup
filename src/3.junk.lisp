@@ -165,16 +165,19 @@ less siblings have high probability of being selected."
     (labels ((rec (length macro list)
                (if (zerop length)
                    list
-                   (let ((a (random-elt (remove-if (curry #'conflict macro) actions))))
-                     (rec (1- length)
-                          (merge-ground-actions macro a)
-                          (cons a list))))))
+                   (let ((candidates (remove-if (curry #'conflict macro) actions)))
+                     (unless (zerop (length candidates))
+                       (let ((a (random-elt candidates)))
+                         (rec (1- length)
+                              (merge-ground-actions macro a)
+                              (cons a list))))))))
       (iter (generate count from 1 below quantity)
             (for a = (random-elt actions))
             (for path = (rec (1- length) a (list a)))
-            (unless (gethash path hash)
-              (setf (gethash path hash) (nullary-macro-action (nreverse (coerce path 'vector))))
-              (next count))
+            (when path
+              (unless (gethash path hash)
+                (setf (gethash path hash) (nullary-macro-action (nreverse (coerce path 'vector))))
+                (next count)))
             (finally
              (return
                (iter (for (path macro) in-hashtable hash)
