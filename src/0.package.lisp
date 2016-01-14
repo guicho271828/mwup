@@ -31,12 +31,14 @@
 (defvar *validation* nil "")
 (defvar *plain* nil "")
 (defvar *lift* nil "")
+(defvar *seed* t "an argument to make-random-state.")
 (defvar *junk* nil
   "A list of 2 integers. 1st element is the length of the junk macros.
 2nd element specifies the number of junk macro.
 If *junk* is NIL, no junk macros should be added.")
-(defvar *fastjunk* nil
-  "A boolean indicating if junk macros should be greedily searched")
+(declaim (type (member :reservoir :greedy :relative-greedy) *junk-type*))
+(defvar *junk-type* :reservoir
+  "A keyword specifying the type of junk generation.")
 (defvar *iterated* nil "")
 (defvar *add-macro-cost* nil "Add the action costs to the domain if it is a unit-cost domain.
 Primitive actions are given a cost of 1. Macro actions are given a cost same as its length.
@@ -95,9 +97,15 @@ fd-clean and specifies those equivalent to LAMA2011.")
                           (read-from-string quantity)))
        (parse rest))
       ((list* "--fastjunk" rest)
-       (setf *fastjunk* t)
+       (setf *junk-type* :greedy)
        (format t "~& Fast junk generation activated, sacrificing uniformness")
        (parse (list* "--junk" rest)))
+      ((list* "--junk-type" type rest)
+       (setf *junk-type* (read-from-string type))
+       (parse rest))
+      ((list* "--seed" seed rest)
+       (setf *seed* (read-from-string seed))
+       (parse rest))
       ;; cost options
       ((list* "--add-macro-cost" rest)
        (setf *add-macro-cost* t)
@@ -125,12 +133,14 @@ fd-clean and specifies those equivalent to LAMA2011.")
                ~%~@{~4t~40<~(~a~)~;~{~a ~}~> : ~@(~a~)~%~}"
                '-----------------debug-options---------- nil "-------------------------------"
                '-v nil "Become more verbose"
+               '--seed '(seed) "Random seed, either an unsigned integer or a symbol T, which means a fresh random value."
                '--megabytes-consed-between-gcs '(megabytes) "GC tuning"
                '--validation nil "run the validator after the planning"
                '--------------macro-options---------- nil "-------------------------------"
                '--plain nil "Do not add the macros."
                '--junk '(length quantity) "Generates and samples a fixed number of randomly generated macros"
                '--fastjunk '(length quantity) "Same as --junk, but enables fast junk generation sacrificing uniformity"
+               '--junk-type '(type) "specify the type of junk generation. one of :reservoir, :greedy, :relative-greedy. :greedy is equivalent to --fastjunk. :relative-greedy treats QUANTITY argument as a percentage, and compute the actual quantity relative to the number of primitive actions."
                '--force-lifted nil "Lift the macro actions."
                '--split '(method) "Disables the macro-action grounding."
                '----------computational-resource-------- nil "-------------------------------"

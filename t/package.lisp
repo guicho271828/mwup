@@ -129,3 +129,34 @@
     (finishes
      (launch "-v" "--validation" "--fastjunk" "2" "5000" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
 
+(test alljunk
+  (let ((*default-pathname-defaults*
+         (asdf:system-source-directory :mwup)))
+    (finishes
+     (launch "-v"  "--junk" "2" ":infinity" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (finishes
+     (launch "-v"  "--fastjunk" "2" ":infinity" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (signals error
+     (launch "-v"  "--junk" "2" ":someother" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (signals error
+     (launch "-v"  "--fastjunk" "2" ":someother" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
+
+(test seed
+  (let ((*default-pathname-defaults*
+         (asdf:system-source-directory :mwup)))
+    (finishes
+     (launch "-v" "--seed" "2016" "--junk" "2" "10" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (finishes
+     (launch "-v" "--seed" "t" "--junk" "2" "10" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
+
+(test junk-type
+  (let ((*default-pathname-defaults*
+         (asdf:system-source-directory :mwup)))
+    (finishes
+     (launch "-v" "--junk" "2" "10" "--junk-type" ":greedy" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (finishes
+     (launch "-v" "--junk" "2" "10" "--junk-type" ":reservoir" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (finishes
+     (launch "-v" "--validation" "--junk" "2" "10" "--junk-type" ":relative-greedy" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (signals error
+     (launch "-v" "--junk" "2" "10" "--junk-type" ":abababa" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
