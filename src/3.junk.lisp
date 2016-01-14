@@ -26,6 +26,8 @@
 
 ;;; main
 
+(define-condition minimum-requirement () ())
+
 (defun maybe-junk-macros (problem domain)
   (ematch *junk*
     (nil nil)
@@ -34,10 +36,26 @@
      (check-type length (integer 2))
      (check-type quantity (integer 0))
      (handler-bind ((warning #'muffle-warning))
-       (junk-macros length
-                    quantity
-                    (get-all-ground-actions domain problem)
-                    domain problem)))))
+       (let ((actions (get-all-ground-actions domain problem)))
+         (if *fastjunk*
+             (handler-case
+                 (progn
+                   (tformat t "Try standard Reservoir Sampling method to get the minimum required number of macros")
+                   ;; for cases where there are too few ground macros
+                   (junk-macros length
+                                quantity
+                                actions
+                                domain problem))
+               (minimum-requirement ()
+                 (tformat t "There are required number of macros, switching to the Naive Sampling")
+                 (junk-macros3 length
+                               quantity
+                               actions
+                               domain problem)))
+             (junk-macros length
+                          quantity
+                          actions
+                          domain problem)))))))
 
 ;; index begins from 1
 ;; (loop for i from 1 to k
@@ -74,6 +92,7 @@ count    = i
                      (if (< count quantity)
                          (setf (aref reservoir count) list)
                          (let ((j (random count)))
+                           (signal 'minimum-requirement)
                            (when (< j quantity)
                              (setf (aref reservoir j) list))))
                      (incf count))
@@ -89,10 +108,80 @@ count    = i
              (rec (1- length) a (list a)))
            actions))
     (tformat t "Total possible junk macros: ~a" count)
-    (loop for actions across reservoir
-          when (listp actions)
-          collect
-          (nullary-macro-action (coerce actions 'vector)))))
+    (iter (for actions in-vector reservoir)
+          (when (listp actions)
+            (collect
+                (nullary-macro-action (nreverse (coerce actions 'vector))))))))
+
+#+nil
+(defun junk-macros2 (length quantity actions *domain* *problem*)
+  "Use Reservoir Sampling (Algorithm R by Jeffrey Vitter) https://en.wikipedia.org/wiki/Reservoir_sampling
+quantity = k
+count    = i
+optimized using type information, but not that effective since the inner functions are slow
+"
+  (declare (optimize (speed 3) (debug 0) (safety 0))
+           ((SIMPLE-ARRAY standard-object (*)) actions)
+           (fixnum length quantity))
+  (let ((count 0)
+        (reservoir (make-array quantity)))
+    (declare (fixnum count))
+    (tformat t "Number of instantiated ground actions: ~a" (length actions))
+    (tformat t "Generating macro actions using Reservoir Sampling")
+    (labels ((rec (length macro list)
+               (declare (fixnum length quantity))
+               (if (zerop length)
+                   (progn
+                     (if (< count quantity)
+                         (setf (aref reservoir count) list)
+                         (let ((j (random count)))
+                           (when (< j quantity)
+                             (setf (aref reservoir j) list))))
+                     (incf count))
+                   (map nil
+                        (lambda (a)
+                          (unless (conflict macro a)
+                            (rec (1- length)
+                                 (merge-ground-actions macro a)
+                                 (cons a list))))
+                        actions))))
+      (map nil
+           (lambda (a)
+             (rec (1- length) a (list a)))
+           actions))
+    (tformat t "Total possible junk macros: ~a" count)
+    (iter (for actions in-vector reservoir)
+          (when (listp actions)
+           (collect
+               (nullary-macro-action (nreverse (coerce actions 'vector))))))))
+
+(defun junk-macros3 (length quantity actions *domain* *problem*)
+  "Faster alternative which randomly selects from the next applicable action.
+This sacrifices the uniformness of the sampling because the branches with
+less siblings have high probability of being selected."
+  (let ((hash (make-hash-table :test #'equal)))
+    (tformat t "Number of instantiated ground actions: ~a" (length actions))
+    (tformat t "Generating macro actions using Naive Sampling")
+    (labels ((rec (length macro list)
+               (if (zerop length)
+                   list
+                   (let ((candidates (remove-if (curry #'conflict macro) actions)))
+                     (unless (zerop (length candidates))
+                       (let ((a (random-elt candidates)))
+                         (rec (1- length)
+                              (merge-ground-actions macro a)
+                              (cons a list))))))))
+      (iter (generate count from 1 below quantity)
+            (for a = (random-elt actions))
+            (for path = (rec (1- length) a (list a)))
+            (when path
+              (unless (gethash path hash)
+                (setf (gethash path hash) (nullary-macro-action (nreverse (coerce path 'vector))))
+                (next count)))
+            (finally
+             (return
+               (iter (for (path macro) in-hashtable hash)
+                     (collect macro))))))))
 
 (defun get-all-ground-actions (domain problem)
   (let* ((dir (mktemp "dump"))

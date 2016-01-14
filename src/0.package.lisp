@@ -35,6 +35,8 @@
   "A list of 2 integers. 1st element is the length of the junk macros.
 2nd element specifies the number of junk macro.
 If *junk* is NIL, no junk macros should be added.")
+(defvar *fastjunk* nil
+  "A boolean indicating if junk macros should be greedily searched")
 (defvar *iterated* nil "")
 (defvar *add-macro-cost* nil "Add the action costs to the domain if it is a unit-cost domain.
 Primitive actions are given a cost of 1. Macro actions are given a cost same as its length.
@@ -92,6 +94,10 @@ fd-clean and specifies those equivalent to LAMA2011.")
        (setf *junk* (list (read-from-string length)
                           (read-from-string quantity)))
        (parse rest))
+      ((list* "--fastjunk" rest)
+       (setf *fastjunk* t)
+       (format t "~& Fast junk generation activated, sacrificing uniformness")
+       (parse (list* "--junk" rest)))
       ;; cost options
       ((list* "--add-macro-cost" rest)
        (setf *add-macro-cost* t)
@@ -124,6 +130,7 @@ fd-clean and specifies those equivalent to LAMA2011.")
                '--------------macro-options---------- nil "-------------------------------"
                '--plain nil "Do not add the macros."
                '--junk '(length quantity) "Generates and samples a fixed number of randomly generated macros"
+               '--fastjunk '(length quantity) "Same as --junk, but enables fast junk generation sacrificing uniformity"
                '--force-lifted nil "Lift the macro actions."
                '--split '(method) "Disables the macro-action grounding."
                '----------computational-resource-------- nil "-------------------------------"

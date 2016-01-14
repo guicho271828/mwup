@@ -19,7 +19,8 @@
                :fiveam)
   :components ((:module "t"
                 :components
-                ((:file "package"))))
+                ((:file "package")
+                 (:file "junk-generation-benchmark"))))
   :perform (test-op :after (op c)
                     (uiop:run-program
                      (format nil "make -j -C ~a"
