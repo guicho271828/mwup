@@ -62,7 +62,7 @@
                         (junk-macros3 length quantity actions domain problem))))
                    (:relative-greedy
                     (let* ((prim-len (length actions))
-                           (true-quantity (floor (* prim-len quantity 1/100))))
+                           (true-quantity (ceiling (* prim-len quantity 1/100))))
                       (tformat t "Adding junk macros: length: ~a quantity: ~A -- ~a% relative to ~A" length true-quantity quantity prim-len)
                       (handler-case
                           (progn

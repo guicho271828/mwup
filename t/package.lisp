@@ -158,5 +158,7 @@
      (launch "-v" "--junk" "2" "10" "--junk-type" ":reservoir" "t/test2/p01.pddl" "t/test2/domain.pddl"))
     (finishes
      (launch "-v" "--validation" "--junk" "2" "10" "--junk-type" ":relative-greedy" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+    (finishes
+     (launch "-v" "--validation" "--junk" "2" "0.00001" "--junk-type" ":relative-greedy" "t/test2/p01.pddl" "t/test2/domain.pddl"))
     (signals error
      (launch "-v" "--junk" "2" "10" "--junk-type" ":abababa" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
