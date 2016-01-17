@@ -158,3 +158,16 @@
   (finishes
     (launch "--validation" "--junk" "2" ":infinity" "--junk-type" ":init" "t/test2/p01.pddl" "t/test2/domain.pddl")))
 
+(test relative-init
+  ;; (finishes
+  ;;   (let ((*default-pathname-defaults* (asdf:system-source-directory :mwup)))
+  ;;     (mwup::mwup-run (list "--validation" "--junk" "2" "10" "--junk-type" ":init"
+  ;;                           "t/test2/p01.pddl"
+  ;;                           "t/test2/domain.pddl"))))
+  (finishes
+    (launch "--validation" "--junk" "2" "10" "--junk-type" ":relative-init" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+  (finishes
+    ;; 5000% !
+    (launch "--validation" "--junk" "2" "5000" "--junk-type" ":relative-init" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+  (signals error
+    (launch "--junk" "2" ":infinity" "--junk-type" ":relative-init" "t/test2/p01.pddl" "t/test2/domain.pddl")))
