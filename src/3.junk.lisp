@@ -81,7 +81,13 @@
                           ;; for cases where there are too few ground macros
                           (all-init-macros length param actions domain problem))
                       (minimum-requirement ()
-                        (init-macros length param actions domain problem)))))))))))
+                        (init-macros length param actions domain problem))))
+                   (:relative-init
+                    (let* ((prim-len (length actions))
+                           (quantity (ceiling (* prim-len param 1/100))))
+                      (tformat t "Adding init macros relative to the number of primitive actions: length: ~a, percentage: ~a, quantity: ~a"
+                               length param quantity)
+                      (init-macros length quantity actions domain problem))))))))))
 
 ;; index begins from 1
 ;; (loop for i from 1 to k
