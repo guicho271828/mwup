@@ -50,11 +50,11 @@
   (tformat t "Enhancing the problem with macros.")
   (multiple-value-bind (eproblem edomain macros) (funcall method problem)
     (tformat t "Enhancement finished on:~%   ~a~%-> ~a" (name problem) (name eproblem))
-    (room nil)
+    (when *verbose* (room nil))
     (tformat t "Collecting Garbage...")
     (sb-ext:gc :full t)
     (tformat t "GC finished.")
-    (room nil)
+    (when *verbose* (room nil))
     (tformat t "Solving the enhanced problem with the main planner ~a." *search*)
     (unless *enhance-only*
       (when (zerop (length macros)) (signal 'no-macro))

@@ -36,7 +36,7 @@
   "A list of 2 integers. 1st element is the length of the junk macros.
 2nd element specifies the number of junk macro.
 If *junk* is NIL, no junk macros should be added.")
-(declaim (type (member :reservoir :greedy :relative-greedy) *junk-type*))
+;; (declaim (type (member :reservoir :greedy :relative-greedy :init) *junk-type*))
 (defvar *junk-type* :reservoir
   "A keyword specifying the type of junk generation.")
 (defvar *iterated* nil "")
@@ -57,6 +57,11 @@ fd-clean and specifies those equivalent to LAMA2011.")
 #+nil (defvar ** nil "")
 
 (defun main (&rest args)
+  (uiop:quit
+   (if (mwup-run args) 0 2)))
+
+(defun mwup-run (args)
+  "separated for testing purpose"
   (let ((*package* (find-package :mwup)))
     (parse args)))
 
@@ -126,8 +131,7 @@ fd-clean and specifies those equivalent to LAMA2011.")
        (parse rest))
       ((list* _ _)
        (format t "~%; Build date : ~a~%" *build-date*)
-       (uiop:quit
-        (if (apply #'solve (mapcar #'merge-pathnames args)) 0 2)))
+       (apply #'solve (mapcar #'merge-pathnames args)))
       (nil
        (format *error-output* "~&Usage: component-planner PROBLEM [DOMAIN] [MACROPLANS...]~
                ~%~@{~4t~40<~(~a~)~;~{~a ~}~> : ~@(~a~)~%~}"
@@ -159,7 +163,8 @@ fd-clean and specifies those equivalent to LAMA2011.")
        (format *error-output* "~%MACROPLANS are by default <problemname>.macro.?[0-9]* in the same directory")
        (format *error-output* "~%Build date : ~a" *build-date*)
        (format *error-output* "~%Base impl : ~a ~a" (lisp-implementation-type) (lisp-implementation-version))
-       (terpri *error-output*))
+       (terpri *error-output*)
+       t)
       (_
        (format *error-output* "~%Invalid Arguments!~%")
        (parse nil))))

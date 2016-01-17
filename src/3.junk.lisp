@@ -41,37 +41,64 @@
               (ematch *junk*
                 (nil nil)
                 ((list length :infinity)
-                 (tformat t "Adding junk macros: length: ~a quantity: ~A" length :infinity)
                  (check-type length (integer 2))
-                 (all-macros length actions domain problem))
-                ((list length quantity)
+                 (ecase *junk-type*
+                   ((:reservoir :greedy)
+                    (tformat t "Adding all junk macros: length: ~a quantity: ~A" length :infinity)
+                    (all-macros length actions domain problem))
+                   (:init
+                    (tformat t "Adding all init macros: length: ~a quantity: ~A" length :infinity)
+                    (all-init-macros length MOST-POSITIVE-FIXNUM actions domain problem))))
+                ((list length param)
                  (check-type length (integer 2))
                  (ecase *junk-type*
                    (:reservoir
-                    (tformat t "Adding junk macros: length: ~a quantity: ~A" length quantity)
-                    (junk-macros length quantity actions domain problem))
+                    (tformat t "Adding junk macros: length: ~a quantity: ~A" length param)
+                    (junk-macros length param actions domain problem))
                    (:greedy
-                    (tformat t "Adding junk macros: length: ~a quantity: ~A" length quantity)
+                    (tformat t "Adding junk macros: length: ~a quantity: ~A" length param)
                     (handler-case
                         (progn
                           (tformat t "Try standard Reservoir Sampling method to get the minimum required number of macros")
                           ;; for cases where there are too few ground macros
-                          (junk-macros length quantity actions domain problem))
+                          (junk-macros length param actions domain problem))
                       (minimum-requirement ()
                         (tformat t "There are required number of macros, switching to the Naive Sampling")
-                        (junk-macros3 length quantity actions domain problem))))
+                        (junk-macros3 length param actions domain problem))))
                    (:relative-greedy
                     (let* ((prim-len (length actions))
-                           (true-quantity (ceiling (* prim-len quantity 1/100))))
-                      (tformat t "Adding junk macros: length: ~a quantity: ~A -- ~a% relative to ~A" length true-quantity quantity prim-len)
+                           (quantity (ceiling (* prim-len param 1/100))))
+                      (tformat t "Adding junk macros: length: ~a quantity: ~A -- ~a% relative to ~A" length quantity param prim-len)
                       (handler-case
                           (progn
                             (tformat t "Try standard Reservoir Sampling method to get the minimum required number of macros")
                             ;; for cases where there are too few ground macros
-                            (junk-macros length true-quantity actions domain problem))
+                            (junk-macros length quantity actions domain problem))
                         (minimum-requirement ()
                           (tformat t "There are required number of macros, switching to the Naive Sampling")
-                          (junk-macros3 length true-quantity actions domain problem))))))))))))
+                          (junk-macros3 length quantity actions domain problem)))))
+                   (:init
+                    ;; generate from the initial state
+                    (tformat t "Adding init macros: length: ~a param: ~A" length param)
+                    (handler-case
+                        (progn
+                          (tformat t "Try instantiating all macros to get the minimum required number of macros")
+                          ;; for cases where there are too few ground macros
+                          (all-init-macros length param actions domain problem))
+                      (minimum-requirement ()
+                        (init-macros length param actions domain problem))))
+                   (:relative-init
+                    (let* ((prim-len (length actions))
+                           (quantity (ceiling (* prim-len param 1/100))))
+                      (tformat t "Adding init macros relative to the number of primitive actions: length: ~a, percentage: ~a, quantity: ~a"
+                               length param quantity)
+                      (handler-case
+                          (progn
+                            (tformat t "Try instantiating all macros to get the minimum required number of macros")
+                            ;; for cases where there are too few ground macros
+                            (all-init-macros length quantity actions domain problem))
+                        (minimum-requirement ()
+                          (init-macros length quantity actions domain problem))))))))))))
 
 ;; index begins from 1
 ;; (loop for i from 1 to k
@@ -239,4 +266,50 @@ less siblings have high probability of being selected."
      (pddl-plan :domain domain :problem problem
                 :path (first plans)))))
 
+
+(defun init-macros (length quantity actions *domain* *problem*)
+  ""
+  (let ((hash (make-hash-table :test #'equal)))
+    (tformat t "Number of instantiated ground actions: ~a" (length actions))
+    (tformat t "Sampling macro actions applicable to the initial state")
+    (labels ((rec (length state list)
+               (if (zerop length)
+                   list
+                   (let ((candidates (remove-if-not (curry #'applicable state) actions)))
+                     (unless (zerop (length candidates))
+                       (let ((a (random-elt candidates)))
+                         (rec (1- length)
+                              (apply-ground-action a state)
+                              (cons a list))))))))
+      (iter (generate count from 1 below quantity)
+            (for path = (rec length (init *problem*) nil))
+            (when path
+              (unless (gethash path hash)
+                (setf (gethash path hash) (nullary-macro-action (nreverse (coerce path 'vector))))
+                (next count)))
+            (finally
+             (return
+               (iter (for (path macro) in-hashtable hash)
+                     (collect macro))))))))
+
+(defun all-init-macros (length quantity actions *domain* *problem*)
+  ""
+  (let ((acc nil) (count 0))
+    (tformat t "Number of instantiated ground actions: ~a" (length actions))
+    (tformat t "Generating ALL macro actions applicable to the initial state")
+    (labels ((rec (length state list)
+               (if (zerop length)
+                   (progn
+                     (push (nullary-macro-action (nreverse (coerce list 'vector))) acc)
+                     (incf count)
+                     (when (< quantity count)
+                       (signal 'minimum-requirement)))
+                   (let ((candidates (remove-if-not (curry #'applicable state) actions)))
+                     (map nil (lambda (a)
+                                (rec (1- length)
+                                     (apply-ground-action a state)
+                                     (cons a list)))
+                          candidates)))))
+      (rec length (init *problem*) nil))
+    acc))
 
