@@ -135,10 +135,23 @@
     (finishes
      (launch "--validation" "--junk" "2" "10" "--junk-type" ":greedy" "t/test2/p01.pddl" "t/test2/domain.pddl"))
     (finishes
-     (launch "-v" "--junk" "2" "10" "--junk-type" ":reservoir" "t/test2/p01.pddl" "t/test2/domain.pddl"))
-    (finishes
-     (launch "-v" "--validation" "--junk" "2" "10" "--junk-type" ":relative-greedy" "t/test2/p01.pddl" "t/test2/domain.pddl"))
-    (finishes
-     (launch "-v" "--validation" "--junk" "2" "0.00001" "--junk-type" ":relative-greedy" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+     (launch "--validation" "--junk" "2" "10" "--junk-type" ":reservoir" "t/test2/p01.pddl" "t/test2/domain.pddl"))
     (signals error
-     (launch "-v" "--junk" "2" "10" "--junk-type" ":abababa" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
+     (launch "--junk" "2" "10" "--junk-type" ":abababa" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
+
+(test relative-greedy
+  (finishes
+    (launch "--validation" "--junk" "2" "10" "--junk-type" ":relative-greedy" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+  (finishes
+    (launch "--validation" "--junk" "2" "0.00001" "--junk-type" ":relative-greedy" "t/test2/p01.pddl" "t/test2/domain.pddl")))
+
+(test init
+  (finishes
+    (let ((*default-pathname-defaults* (asdf:system-source-directory :mwup)))
+      (mwup::mwup-run (list "--validation" "--junk" "2" "10" "--junk-type" ":init"
+                            "t/test2/p01.pddl"
+                            "t/test2/domain.pddl"))))
+  (finishes
+    (launch "--validation" "--junk" "2" "10" "--junk-type" ":init" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+  (finishes
+    (launch "--validation" "--junk" "2" "5000" "--junk-type" ":init" "t/test2/p01.pddl" "t/test2/domain.pddl")))
