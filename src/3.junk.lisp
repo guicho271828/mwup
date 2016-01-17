@@ -75,7 +75,13 @@
                    (:init
                     ;; generate from the initial state
                     (tformat t "Adding init macros: length: ~a param: ~A" length param)
-                    (init-macros length param actions domain problem)))))))))
+                    (handler-case
+                        (progn
+                          (tformat t "Try instantiating all macros to get the minimum required number of macros")
+                          ;; for cases where there are too few ground macros
+                          (all-init-macros length param actions domain problem))
+                      (minimum-requirement ()
+                        (init-macros length param actions domain problem)))))))))))
 
 ;; index begins from 1
 ;; (loop for i from 1 to k
@@ -248,7 +254,7 @@ less siblings have high probability of being selected."
   ""
   (let ((hash (make-hash-table :test #'equal)))
     (tformat t "Number of instantiated ground actions: ~a" (length actions))
-    (tformat t "Generating macro actions applicable to the initial state, using Naive Sampling")
+    (tformat t "Sampling macro actions applicable to the initial state")
     (labels ((rec (length state list)
                (if (zerop length)
                    list
@@ -268,4 +274,25 @@ less siblings have high probability of being selected."
              (return
                (iter (for (path macro) in-hashtable hash)
                      (collect macro))))))))
+
+(defun all-init-macros (length quantity actions *domain* *problem*)
+  ""
+  (let ((acc nil) (count 0))
+    (tformat t "Number of instantiated ground actions: ~a" (length actions))
+    (tformat t "Generating ALL macro actions applicable to the initial state")
+    (labels ((rec (length state list)
+               (if (zerop length)
+                   (progn
+                     (push (nullary-macro-action (nreverse (coerce list 'vector))) acc)
+                     (incf count)
+                     (when (< quantity count)
+                       (signal 'minimum-requirement)))
+                   (let ((candidates (remove-if-not (curry #'applicable state) actions)))
+                     (map nil (lambda (a)
+                                (rec (1- length)
+                                     (apply-ground-action a state)
+                                     (cons a list)))
+                          candidates)))))
+      (rec length (init *problem*) nil))
+    acc))
 
