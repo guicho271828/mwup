@@ -92,7 +92,13 @@
                            (quantity (ceiling (* prim-len param 1/100))))
                       (tformat t "Adding init macros relative to the number of primitive actions: length: ~a, percentage: ~a, quantity: ~a"
                                length param quantity)
-                      (init-macros length quantity actions domain problem))))))))))
+                      (handler-case
+                          (progn
+                            (tformat t "Try instantiating all macros to get the minimum required number of macros")
+                            ;; for cases where there are too few ground macros
+                            (all-init-macros length quantity actions domain problem))
+                        (minimum-requirement ()
+                          (init-macros length quantity actions domain problem))))))))))))
 
 ;; index begins from 1
 ;; (loop for i from 1 to k
