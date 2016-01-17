@@ -43,12 +43,12 @@
                 ((list length :infinity)
                  (check-type length (integer 2))
                  (ecase *junk-type*
-                   (:reservoir
-                    (tformat t "Adding all junk macros: length: ~a quantity: ~A" length param)
+                   ((:reservoir :greedy)
+                    (tformat t "Adding all junk macros: length: ~a quantity: ~A" length :infinity)
                     (all-macros length actions domain problem))
                    (:init
-                    (tformat t "Adding all init macros: length: ~a quantity: ~A" length param)
-                    (all-init-macros length param actions domain problem))))
+                    (tformat t "Adding all init macros: length: ~a quantity: ~A" length :infinity)
+                    (all-init-macros length MOST-POSITIVE-FIXNUM actions domain problem))))
                 ((list length param)
                  (check-type length (integer 2))
                  (ecase *junk-type*
