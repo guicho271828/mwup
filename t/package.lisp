@@ -20,21 +20,6 @@
 
 ;; run test with (run! test-name) 
 
-(defun launch-script (&rest args)
-  (let* ((*default-pathname-defaults*
-          (asdf:system-source-directory :mwup))
-         (cmd (format nil
-                      "cd ~a; cgexec -g cpu,cpuacct,memory:/~a ros ~a~{ ~s~}"
-                      (namestring *default-pathname-defaults*)
-                      (run-program "whoami" :output '(:string :stripped t))
-                      (namestring (merge-pathnames "mwup.ros"))
-                      (mapcar #'namestring (flatten args)))))
-    (format t "~&~a~%" cmd)
-    (run-program cmd
-                 :output t
-                 :error-output t
-                 :force-shell t)))
-
 (defun launch (&rest args)
   (let* ((*default-pathname-defaults*
           (asdf:system-source-directory :mwup))
@@ -51,8 +36,6 @@
                  :force-shell t)))
 
 (test ros-dry-runs
-  (finishes
-    (launch-script))
   (finishes
     (launch))
   (finishes
