@@ -71,7 +71,11 @@
                             (junk-macros length quantity actions domain problem))
                         (minimum-requirement ()
                           (tformat t "There are required number of macros, switching to the Naive Sampling")
-                          (junk-macros3 length quantity actions domain problem))))))))))))
+                          (junk-macros3 length quantity actions domain problem)))))
+                   (:init
+                    ;; generate from the initial state
+                    (tformat t "Adding init macros: length: ~a param: ~A" length param)
+                    (init-macros length param actions domain problem)))))))))
 
 ;; index begins from 1
 ;; (loop for i from 1 to k
@@ -239,4 +243,29 @@ less siblings have high probability of being selected."
      (pddl-plan :domain domain :problem problem
                 :path (first plans)))))
 
+
+(defun init-macros (length quantity actions *domain* *problem*)
+  ""
+  (let ((hash (make-hash-table :test #'equal)))
+    (tformat t "Number of instantiated ground actions: ~a" (length actions))
+    (tformat t "Generating macro actions applicable to the initial state, using Naive Sampling")
+    (labels ((rec (length state list)
+               (if (zerop length)
+                   list
+                   (let ((candidates (remove-if-not (curry #'applicable state) actions)))
+                     (unless (zerop (length candidates))
+                       (let ((a (random-elt candidates)))
+                         (rec (1- length)
+                              (apply-ground-action a state)
+                              (cons a list))))))))
+      (iter (generate count from 1 below quantity)
+            (for path = (rec length (init *problem*) nil))
+            (when path
+              (unless (gethash path hash)
+                (setf (gethash path hash) (nullary-macro-action (nreverse (coerce path 'vector))))
+                (next count)))
+            (finally
+             (return
+               (iter (for (path macro) in-hashtable hash)
+                     (collect macro))))))))
 

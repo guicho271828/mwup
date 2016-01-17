@@ -36,7 +36,7 @@
   "A list of 2 integers. 1st element is the length of the junk macros.
 2nd element specifies the number of junk macro.
 If *junk* is NIL, no junk macros should be added.")
-(declaim (type (member :reservoir :greedy :relative-greedy) *junk-type*))
+;; (declaim (type (member :reservoir :greedy :relative-greedy :init) *junk-type*))
 (defvar *junk-type* :reservoir
   "A keyword specifying the type of junk generation.")
 (defvar *iterated* nil "")
