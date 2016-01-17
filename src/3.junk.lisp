@@ -44,34 +44,34 @@
                  (tformat t "Adding junk macros: length: ~a quantity: ~A" length :infinity)
                  (check-type length (integer 2))
                  (all-macros length actions domain problem))
-                ((list length quantity)
+                ((list length param)
                  (check-type length (integer 2))
                  (ecase *junk-type*
                    (:reservoir
-                    (tformat t "Adding junk macros: length: ~a quantity: ~A" length quantity)
-                    (junk-macros length quantity actions domain problem))
+                    (tformat t "Adding junk macros: length: ~a quantity: ~A" length param)
+                    (junk-macros length param actions domain problem))
                    (:greedy
-                    (tformat t "Adding junk macros: length: ~a quantity: ~A" length quantity)
+                    (tformat t "Adding junk macros: length: ~a quantity: ~A" length param)
                     (handler-case
                         (progn
                           (tformat t "Try standard Reservoir Sampling method to get the minimum required number of macros")
                           ;; for cases where there are too few ground macros
-                          (junk-macros length quantity actions domain problem))
+                          (junk-macros length param actions domain problem))
                       (minimum-requirement ()
                         (tformat t "There are required number of macros, switching to the Naive Sampling")
-                        (junk-macros3 length quantity actions domain problem))))
+                        (junk-macros3 length param actions domain problem))))
                    (:relative-greedy
                     (let* ((prim-len (length actions))
-                           (true-quantity (ceiling (* prim-len quantity 1/100))))
-                      (tformat t "Adding junk macros: length: ~a quantity: ~A -- ~a% relative to ~A" length true-quantity quantity prim-len)
+                           (quantity (ceiling (* prim-len param 1/100))))
+                      (tformat t "Adding junk macros: length: ~a quantity: ~A -- ~a% relative to ~A" length quantity param prim-len)
                       (handler-case
                           (progn
                             (tformat t "Try standard Reservoir Sampling method to get the minimum required number of macros")
                             ;; for cases where there are too few ground macros
-                            (junk-macros length true-quantity actions domain problem))
+                            (junk-macros length quantity actions domain problem))
                         (minimum-requirement ()
                           (tformat t "There are required number of macros, switching to the Naive Sampling")
-                          (junk-macros3 length true-quantity actions domain problem))))))))))))
+                          (junk-macros3 length quantity actions domain problem))))))))))))
 
 ;; index begins from 1
 ;; (loop for i from 1 to k
