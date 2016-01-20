@@ -31,8 +31,9 @@
                       (mapcar #'namestring (flatten args)))))
     (format t "~&~a~%" cmd)
     (run-program cmd
-                 :output *standard-output*
-                 :error-output *error-output*)))
+                 ;; :output *standard-output*
+                 ;; :error-output *error-output*
+                 )))
 
 (test ros-dry-runs
   (finishes
@@ -69,105 +70,77 @@
               (directory (merge-pathnames "t/test1/p01.macro.*"))))))
 
 (test junk
-  (let ((*default-pathname-defaults*
-         (asdf:system-source-directory :mwup)))
-    ;; does not work due to cgroup
-    ;; (finishes
-    ;;   (let (*verbose* *junk*)
-    ;;     (mwup::main "--junk" "2" "10" "t/test3/p01.pddl" "t/test3/domain.pddl")))
+  (signals error
+    ;; old arguments
+    (launch "--junk" "2" "10" "--junk-limit" "5" "t/test3/p01.pddl" "t/test3/domain.pddl"))
+  (signals error
+    (launch "--junk" "2" "10" "--junk-limit" "5000" "t/test3/p01.pddl" "t/test3/domain.pddl"))
+  ;; 
+  ;; 
+  (dolist (arg '("10" "0" "5000" ":infinity"))
     (finishes
-      (launch "--validation" "--junk" "2" "10" "t/test3/p01.pddl" "t/test3/domain.pddl"))
+      (launch "--validation" "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl")))
+  (dolist (arg '("-1" "0.5" ":someother"))
     (signals error
-      ;; old arguments: expect probability
-      (launch "--validation" "--junk" "2" "0.5" "t/test3/p01.pddl" "t/test3/domain.pddl"))))
-
-(test junk-limit
-  (let ((*default-pathname-defaults*
-         (asdf:system-source-directory :mwup)))
-    (signals error
-      ;; old arguments
-      (launch "--junk" "2" "10" "--junk-limit" "5" "t/test3/p01.pddl" "t/test3/domain.pddl"))
-    (signals error
-      (launch "--junk" "2" "10" "--junk-limit" "5000" "t/test3/p01.pddl" "t/test3/domain.pddl"))
-    (finishes
-     (launch "--validation" "--junk" "2" "10" "t/test3/p01.pddl" "t/test3/domain.pddl"))
-    (finishes
-     (launch "--validation" "--junk" "2" "5000" "t/test3/p01.pddl" "t/test3/domain.pddl"))))
+      (launch "--validation" "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl"))))
 
 (test gc
-  (let ((*default-pathname-defaults*
-         (asdf:system-source-directory :mwup)))
-    (finishes
-     (launch "--validation" "--junk" "2" "10" "--megabytes-consed-between-gcs" "10" "t/test3/p01.pddl" "t/test3/domain.pddl"))))
-
+  (finishes
+    (launch "--validation" "--junk" "2" "10" "--megabytes-consed-between-gcs" "10" "t/test3/p01.pddl" "t/test3/domain.pddl")))
 
 (test fastjunk
-  (let ((*default-pathname-defaults*
-         (asdf:system-source-directory :mwup)))
+  (dolist (arg '("10" "0" "5000" ":infinity"))
     (finishes
-     (launch "--validation" "--fastjunk" "2" "10" "t/test3/p01.pddl" "t/test3/domain.pddl"))
-    (finishes
-     (launch "--validation" "--fastjunk" "2" "5000" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
-
-(test alljunk
-  (let ((*default-pathname-defaults*
-         (asdf:system-source-directory :mwup)))
-    (finishes
-     (launch "--validation" "--junk" "2" ":infinity" "t/test2/p01.pddl" "t/test2/domain.pddl"))
-    (finishes
-     (launch "--validation" "--fastjunk" "2" ":infinity" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+      (launch "--validation" "--fastjunk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl")))
+  (dolist (arg '("-1" "0.5" ":someother"))
     (signals error
-     (launch "--junk" "2" ":someother" "t/test2/p01.pddl" "t/test2/domain.pddl"))
-    (signals error
-     (launch "--fastjunk" "2" ":someother" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
+      (launch "--validation" "--fastjunk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl"))))
 
 (test seed
-  (let ((*default-pathname-defaults*
-         (asdf:system-source-directory :mwup)))
-    (finishes
-     (launch "--validation" "--seed" "2016" "--junk" "2" "10" "t/test2/p01.pddl" "t/test2/domain.pddl"))
-    (finishes
-     (launch "--validation" "--seed" "t" "--junk" "2" "10" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
+  (finishes
+    (launch "--validation" "--seed" "2016" "--junk" "2" "10" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+  (finishes
+    (launch "--validation" "--seed" "t" "--junk" "2" "10" "t/test2/p01.pddl" "t/test2/domain.pddl")))
 
 (test junk-type
-  (let ((*default-pathname-defaults*
-         (asdf:system-source-directory :mwup)))
+  (dolist (arg '(":greedy" ":reservoir"))
     (finishes
-     (launch "--validation" "--junk" "2" "10" "--junk-type" ":greedy" "t/test2/p01.pddl" "t/test2/domain.pddl"))
-    (finishes
-     (launch "--validation" "--junk" "2" "10" "--junk-type" ":reservoir" "t/test2/p01.pddl" "t/test2/domain.pddl"))
+      (launch "--junk" "2" "10" "--junk-type" arg "t/test2/p01.pddl" "t/test2/domain.pddl")))
+  (dolist (arg '(":someother"))
     (signals error
-     (launch "--junk" "2" "10" "--junk-type" ":abababa" "t/test2/p01.pddl" "t/test2/domain.pddl"))))
+      (launch "--junk" "2" "10" "--junk-type" arg "t/test2/p01.pddl" "t/test2/domain.pddl"))))
 
 (test relative-greedy
-  (finishes
-    (launch "--validation" "--junk" "2" "10" "--junk-type" ":relative-greedy" "t/test2/p01.pddl" "t/test2/domain.pddl"))
-  (finishes
-    (launch "--validation" "--junk" "2" "0.00001" "--junk-type" ":relative-greedy" "t/test2/p01.pddl" "t/test2/domain.pddl")))
+  (dolist (arg '("10" "0" "0.00001" "5000"))
+    (finishes
+      (launch "--validation" "--junk-type" ":relative-greedy"
+              "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl")))
+  (dolist (arg '("-1" ":someother" ":infinity"))
+    (signals error
+      (launch "--validation" "--junk-type" ":relative-greedy"
+              "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl"))))
 
 (test init
-  (finishes
-    (let ((*default-pathname-defaults* (asdf:system-source-directory :mwup)))
-      (mwup::mwup-run (list "--validation" "--junk" "2" "10" "--junk-type" ":init"
-                            "t/test2/p01.pddl"
-                            "t/test2/domain.pddl"))))
-  (finishes
-    (launch "--validation" "--junk" "2" "10" "--junk-type" ":init" "t/test2/p01.pddl" "t/test2/domain.pddl"))
-  (finishes
-    (launch "--validation" "--junk" "2" "5000" "--junk-type" ":init" "t/test2/p01.pddl" "t/test2/domain.pddl"))
-  (finishes
-    (launch "--validation" "--junk" "2" ":infinity" "--junk-type" ":init" "t/test2/p01.pddl" "t/test2/domain.pddl")))
+  (dolist (arg '("10" "0" "5000" ":infinity"))
+    (finishes
+      (launch "--validation" "--junk" "2" arg "--junk-type" ":init" "t/test3/p01.pddl" "t/test3/domain.pddl")))
+  (dolist (arg '("-1" "0.5" ":someother"))
+    (signals error
+      (launch "--validation" "--junk" "2" arg "--junk-type" ":init" "t/test3/p01.pddl" "t/test3/domain.pddl"))))
 
 (test relative-init
-  ;; (finishes
-  ;;   (let ((*default-pathname-defaults* (asdf:system-source-directory :mwup)))
-  ;;     (mwup::mwup-run (list "--validation" "--junk" "2" "10" "--junk-type" ":init"
-  ;;                           "t/test2/p01.pddl"
-  ;;                           "t/test2/domain.pddl"))))
-  (finishes
-    (launch "--validation" "--junk" "2" "10" "--junk-type" ":relative-init" "t/test2/p01.pddl" "t/test2/domain.pddl"))
-  (finishes
-    ;; 5000% !
-    (launch "--validation" "--junk" "2" "5000" "--junk-type" ":relative-init" "t/test2/p01.pddl" "t/test2/domain.pddl"))
-  (signals error
-    (launch "--junk" "2" ":infinity" "--junk-type" ":relative-init" "t/test2/p01.pddl" "t/test2/domain.pddl")))
+  (dolist (arg '("10" "0" "0.00001" "5000"))
+    (finishes
+      (launch "--validation" "--junk-type" ":relative-init"
+              "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl")))
+  (dolist (arg '("-1" ":someother" ":infinity"))
+    (signals error
+      (launch "--validation" "--junk-type" ":relative-init"
+              "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl"))))
+
+#+nil
+(finishes
+  (let ((*default-pathname-defaults* (asdf:system-source-directory :mwup)))
+    (mwup::mwup-run (list "--validation" "--junk" "2" "10" "--junk-type" ":init"
+                          "t/test2/p01.pddl"
+                          "t/test2/domain.pddl"))))
