@@ -49,13 +49,16 @@
                    (:init
                     (tformat t "Adding all init macros: length: ~a quantity: ~A" length :infinity)
                     (all-init-macros length MOST-POSITIVE-FIXNUM actions domain problem))))
-                ((list length param)
+                ((list length (and (number) param))
                  (check-type length (integer 2))
+                 (check-type param (real 0))
                  (ecase *junk-type*
                    (:reservoir
+                    (check-type param (integer 0))
                     (tformat t "Adding junk macros: length: ~a quantity: ~A" length param)
                     (junk-macros length param actions domain problem))
                    (:greedy
+                    (check-type param (integer 0))
                     (tformat t "Adding junk macros: length: ~a quantity: ~A" length param)
                     (handler-case
                         (progn
@@ -78,6 +81,7 @@
                           (tformat t "There are required number of macros, switching to the Naive Sampling")
                           (junk-macros3 length quantity actions domain problem)))))
                    (:init
+                    (check-type param (integer 0))
                     ;; generate from the initial state
                     (tformat t "Adding init macros: length: ~a param: ~A" length param)
                     (handler-case
@@ -129,32 +133,33 @@ count    = i
         (reservoir (make-array quantity)))
     (tformat t "Number of instantiated ground actions: ~a" (length actions))
     (tformat t "Generating macro actions using Reservoir Sampling")
-    (labels ((rec (length macro list)
-               (if (zerop length)
-                   (progn
-                     (if (< count quantity)
-                         (setf (aref reservoir count) list)
-                         (let ((j (random count)))
-                           (signal 'minimum-requirement)
-                           (when (< j quantity)
-                             (setf (aref reservoir j) list))))
-                     (incf count))
-                   (map nil
-                        (lambda (a)
-                          (unless (conflict macro a)
-                            (rec (1- length)
-                                 (merge-ground-actions macro a)
-                                 (cons a list))))
-                        actions))))
-      (map nil
-           (lambda (a)
-             (rec (1- length) a (list a)))
-           actions))
-    (tformat t "Total possible junk macros: ~a" count)
-    (iter (for actions in-vector reservoir)
-          (when (listp actions)
-            (collect
-                (nullary-macro-action (nreverse (coerce actions 'vector))))))))
+    (when (plusp quantity)
+      (labels ((rec (length macro list)
+                 (if (zerop length)
+                     (progn
+                       (if (< count quantity)
+                           (setf (aref reservoir count) list)
+                           (let ((j (random count)))
+                             (signal 'minimum-requirement)
+                             (when (< j quantity)
+                               (setf (aref reservoir j) list))))
+                       (incf count))
+                     (map nil
+                          (lambda (a)
+                            (unless (conflict macro a)
+                              (rec (1- length)
+                                   (merge-ground-actions macro a)
+                                   (cons a list))))
+                          actions))))
+        (map nil
+             (lambda (a)
+               (rec (1- length) a (list a)))
+             actions))
+      (tformat t "Total possible junk macros: ~a" count)
+      (iter (for actions in-vector reservoir)
+            (when (listp actions)
+              (collect
+                  (nullary-macro-action (nreverse (coerce actions 'vector)))))))))
 
 #+nil
 (defun junk-macros2 (length quantity actions *domain* *problem*)
@@ -202,29 +207,30 @@ optimized using type information, but not that effective since the inner functio
   "Faster alternative which randomly selects from the next applicable action.
 This sacrifices the uniformness of the sampling because the branches with
 less siblings have high probability of being selected."
-  (let ((hash (make-hash-table :test #'equal)))
-    (tformat t "Number of instantiated ground actions: ~a" (length actions))
-    (tformat t "Generating macro actions using Naive Sampling")
-    (labels ((rec (length macro list)
-               (if (zerop length)
-                   list
-                   (let ((candidates (remove-if (curry #'conflict macro) actions)))
-                     (unless (zerop (length candidates))
-                       (let ((a (random-elt candidates)))
-                         (rec (1- length)
-                              (merge-ground-actions macro a)
-                              (cons a list))))))))
-      (iter (generate count from 1 below quantity)
-            (for a = (random-elt actions))
-            (for path = (rec (1- length) a (list a)))
-            (when path
-              (unless (gethash path hash)
-                (setf (gethash path hash) (nullary-macro-action (nreverse (coerce path 'vector))))
-                (next count)))
-            (finally
-             (return
-               (iter (for (path macro) in-hashtable hash)
-                     (collect macro))))))))
+  (when (plusp quantity)
+    (let ((hash (make-hash-table :test #'equal)))
+      (tformat t "Number of instantiated ground actions: ~a" (length actions))
+      (tformat t "Generating macro actions using Naive Sampling")
+      (labels ((rec (length macro list)
+                 (if (zerop length)
+                     list
+                     (let ((candidates (remove-if (curry #'conflict macro) actions)))
+                       (unless (zerop (length candidates))
+                         (let ((a (random-elt candidates)))
+                           (rec (1- length)
+                                (merge-ground-actions macro a)
+                                (cons a list))))))))
+        (iter (generate count from 1 below quantity)
+              (for a = (random-elt actions))
+              (for path = (rec (1- length) a (list a)))
+              (when path
+                (unless (gethash path hash)
+                  (setf (gethash path hash) (nullary-macro-action (nreverse (coerce path 'vector))))
+                  (next count)))
+              (finally
+               (return
+                 (iter (for (path macro) in-hashtable hash)
+                       (collect macro)))))))))
 
 (defun all-macros (length actions *domain* *problem*)
   "Generate all macro actions of length LENGTH"
