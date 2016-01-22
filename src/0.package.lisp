@@ -62,9 +62,9 @@ fd-clean and specifies those equivalent to LAMA2011.")
 
 (defun main (&rest args)
   (uiop:quit
-   (if (mwup-run args) 0 2)))
+   (if (apply #'mwup-run args) 0 2)))
 
-(defun mwup-run (args)
+(defun mwup-run (&rest args)
   "separated for testing purpose"
   (let ((*package* (find-package :mwup)))
     (parse args)))
