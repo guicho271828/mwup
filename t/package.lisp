@@ -31,9 +31,13 @@
                       (mapcar #'namestring (flatten args)))))
     (format t "~&~a~%" cmd)
     (run-program cmd
-                 ;; :output *standard-output*
-                 ;; :error-output *error-output*
+                 :output *standard-output*
+                 :error-output *error-output*
                  )))
+
+(defun launch-online (&rest args)
+  (let ((*default-pathname-defaults* (asdf:system-source-directory :mwup)))
+    (apply #'mwup::mwup-run args)))
 
 (test ros-dry-runs
   (finishes
@@ -140,11 +144,6 @@
 
 (test mangle
   (finishes
-   (launch "--validation" "--plain" "--mangle" "t/test3/p01.pddl" "t/test3/domain.pddl")))
+   (launch-online "--validation" "--plain" "--mangle" "t/test3/p01.pddl" "t/test3/domain.pddl")))
 
-#+nil
-(finishes
-  (let ((*default-pathname-defaults* (asdf:system-source-directory :mwup)))
-    (mwup::mwup-run (list "--validation" "--junk" "2" "10" "--junk-type" ":init"
-                          "t/test2/p01.pddl"
-                          "t/test2/domain.pddl"))))
+
