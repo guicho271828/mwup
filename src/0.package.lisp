@@ -58,7 +58,7 @@ used. Supercedes *add-macro-cost*.")
   "search options to pass to the underlying planner. default value is for
 fd-clean and specifies those equivalent to LAMA2011.")
 
-#+nil (defvar ** nil "")
+(defvar *mangle* nil "Action names are mangled.")
 
 (defun main (&rest args)
   (uiop:quit
@@ -87,6 +87,9 @@ fd-clean and specifies those equivalent to LAMA2011.")
       ((list* "--plain" rest)
        (format t "~&; Plain mode was activated, CAP runs only the main planner.")
        (setf *plain* t)
+       (parse rest))
+      ((list* "--mangle" rest)
+       (setf *mangle* t)
        (parse rest))
       ((list* "-t" time rest)
        (setf *hard-time-limit* (parse-integer time))
@@ -147,6 +150,7 @@ fd-clean and specifies those equivalent to LAMA2011.")
                '--enhance-only nil (documentation 'variable '*enhance-only*)
                '--------------macro-options---------- nil "-------------------------------"
                '--plain nil (documentation 'variable '*plain*)
+               '--mangle nil (documentation 'variable '*mangle*)
                '--junk '(length quantity) (documentation 'variable '*junk*)
                '--fastjunk '(length quantity) "Same as --junk and --junk-type :greedy"
                '--junk-type '(type) (documentation 'variable '*junk-type*)
