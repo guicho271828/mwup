@@ -26,19 +26,23 @@
                 (rec (cons string acc) rest)))))
     (rec nil list)))
 
-(defvar *enhance-only* nil "when non-nil, enhance the domain with macros but do not solve the problem")
-(defvar *verbose* nil "")
-(defvar *validation* nil "")
-(defvar *plain* nil "")
-(defvar *lift* nil "")
-(defvar *seed* t "an argument to make-random-state.")
+(defvar *enhance-only* nil "When non-nil, enhance the domain with macros but do not solve the problem")
+(defvar *verbose* nil "Become more verbose")
+(defvar *validation* nil "Run the validator after the planning")
+(defvar *plain* nil "Do not add the macros.")
+(defvar *lift* nil "Lift the macro actions.")
+(defvar *seed* t "Random seed, either an unsigned integer or a symbol T, which means a fresh random value.")
 (defvar *junk* nil
   "A list of 2 integers. 1st element is the length of the junk macros.
 2nd element specifies the number of junk macro.
 If *junk* is NIL, no junk macros should be added.")
 ;; (declaim (type (member :reservoir :greedy :relative-greedy :init) *junk-type*))
 (defvar *junk-type* :reservoir
-  "A keyword specifying the type of junk generation.")
+  "Specify the type of junk generation. one
+  of :reservoir, :greedy, :relative-greedy. :greedy is equivalent to
+  --fastjunk. :relative-greedy treats QUANTITY argument as a percentage,
+  and compute the actual quantity relative to the number of
+  primitive actions.")
 (defvar *iterated* nil "")
 (defvar *add-macro-cost* nil "Add the action costs to the domain if it is a unit-cost domain.
 Primitive actions are given a cost of 1. Macro actions are given a cost same as its length.
@@ -136,19 +140,19 @@ fd-clean and specifies those equivalent to LAMA2011.")
        (format *error-output* "~&Usage: component-planner PROBLEM [DOMAIN] [MACROPLANS...]~
                ~%~@{~4t~40<~(~a~)~;~{~a ~}~> : ~@(~a~)~%~}"
                '-----------------debug-options---------- nil "-------------------------------"
-               '-v nil "Become more verbose"
-               '--seed '(seed) "Random seed, either an unsigned integer or a symbol T, which means a fresh random value."
+               '-v nil (documentation 'variable '*verbose**)
+               '--seed '(seed) (documentation 'variable '*seed*)
                '--megabytes-consed-between-gcs '(megabytes) "GC tuning"
-               '--validation nil "run the validator after the planning"
+               '--validation nil (documentation 'variable '*validation*)
+               '--enhance-only nil (documentation 'variable '*enhance-only*)
                '--------------macro-options---------- nil "-------------------------------"
-               '--plain nil "Do not add the macros."
-               '--junk '(length quantity) "Generates and samples a fixed number of randomly generated macros"
-               '--fastjunk '(length quantity) "Same as --junk, but enables fast junk generation sacrificing uniformity"
-               '--junk-type '(type) "specify the type of junk generation. one of :reservoir, :greedy, :relative-greedy. :greedy is equivalent to --fastjunk. :relative-greedy treats QUANTITY argument as a percentage, and compute the actual quantity relative to the number of primitive actions."
-               '--force-lifted nil "Lift the macro actions."
-               '--split '(method) "Disables the macro-action grounding."
+               '--plain nil (documentation 'variable '*plain*)
+               '--junk '(length quantity) (documentation 'variable '*junk*)
+               '--fastjunk '(length quantity) "Same as --junk and --junk-type :greedy"
+               '--junk-type '(type) (documentation 'variable '*junk-type*)
+               '--force-lifted nil (documentation 'variable '*lift*)
                '----------computational-resource-------- nil "-------------------------------"
-               '-t '(sec) "time limit for the main search. NOT the total limit"
+               '-t '(sec) "Time limit for the main search. NOT the total limit"
                '-m '(memory-in-kb) "memory limit for main search and subproblems. NOT the total limit"
                '--------underlying-planner-options------ nil "-------------------------------"
                '--search '(planner options... -) "Specify MainPlanner. Options end with a \"-\"."
