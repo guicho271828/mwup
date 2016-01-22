@@ -45,7 +45,9 @@
   (finishes
     (launch "--plain"))
   (finishes
-    (launch "--enhance-only")))
+    (launch "--enhance-only"))
+  (signals error
+    (launch "--nosuchflag")))
 
 (test plain
   (let ((*default-pathname-defaults*
