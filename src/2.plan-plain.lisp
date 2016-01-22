@@ -14,7 +14,8 @@
 
 (defmethod mangle :around (object)
   (let ((result (call-next-method)))
-    (setf (gethash result *demangle*) object)))
+    (setf (gethash result *demangle*) object)
+    result))
 
 (defmethod mangle ((domain pddl-domain))
   (let ((*domain* (shallow-copy domain)))
@@ -47,7 +48,7 @@
         (multiple-value-bind (pname problem) (suppress (parse-file ppath nil t))
           (declare (ignorable pname))
           (let ((domain (funcall (compose (if *remove-cost* #'remove-costs #'identity)
-                                            (if *mangle* #'mangle #'identity))
+                                          (if *mangle* #'mangle #'identity))
                                  domain))
                 (problem (funcall (if *remove-cost* #'remove-costs #'identity) problem)))
             (let ((plans (test-problem-common
