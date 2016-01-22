@@ -138,6 +138,10 @@
       (launch "--validation" "--junk-type" ":relative-init"
               "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl"))))
 
+(test mangle
+  (finishes
+   (launch "--validation" "--plain" "--mangle" "t/test3/p01.pddl" "t/test3/domain.pddl")))
+
 #+nil
 (finishes
   (let ((*default-pathname-defaults* (asdf:system-source-directory :mwup)))
