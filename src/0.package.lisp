@@ -143,18 +143,18 @@ fd-clean and specifies those equivalent to LAMA2011.")
        (format *error-output* "~&Usage: component-planner PROBLEM [DOMAIN] [MACROPLANS...]~
                ~%~@{~4t~40<~(~a~)~;~{~a ~}~> : ~@(~a~)~%~}"
                '-----------------debug-options---------- nil "-------------------------------"
-               '-v nil (documentation 'variable '*verbose**)
-               '--seed '(seed) (documentation 'variable '*seed*)
+               '-v nil (documentation '*verbose* 'variable)
+               '--seed '(seed) (documentation '*seed* 'variable)
                '--megabytes-consed-between-gcs '(megabytes) "GC tuning"
-               '--validation nil (documentation 'variable '*validation*)
-               '--enhance-only nil (documentation 'variable '*enhance-only*)
+               '--validation nil (documentation '*validation* 'variable)
+               '--enhance-only nil (documentation '*enhance-only* 'variable)
                '--------------macro-options---------- nil "-------------------------------"
-               '--plain nil (documentation 'variable '*plain*)
-               '--mangle nil (documentation 'variable '*mangle*)
-               '--junk '(length quantity) (documentation 'variable '*junk*)
+               '--plain nil (documentation '*plain* 'variable)
+               '--mangle nil (documentation '*mangle* 'variable)
+               '--junk '(length quantity) (documentation '*junk* 'variable)
                '--fastjunk '(length quantity) "Same as --junk and --junk-type :greedy"
-               '--junk-type '(type) (documentation 'variable '*junk-type*)
-               '--force-lifted nil (documentation 'variable '*lift*)
+               '--junk-type '(type) (documentation '*junk-type* 'variable)
+               '--force-lifted nil (documentation '*lift* 'variable)
                '----------computational-resource-------- nil "-------------------------------"
                '-t '(sec) "Time limit for the main search. NOT the total limit"
                '-m '(memory-in-kb) "memory limit for main search and subproblems. NOT the total limit"
