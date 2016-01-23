@@ -77,7 +77,7 @@
                   (block nil
                     (pprint-logical-block (*standard-output* nil :per-line-prefix (format nil "Plan ~a " i))
                       (return 
-                        (decode-plan-all macros plan edomain eproblem)))))
+                        (decode-plan-all macros plan)))))
                 (mapcar (lambda (path)
                           (pddl-plan :actions (map 'vector #'demangle
                                                    (actions (pddl-plan :path path
