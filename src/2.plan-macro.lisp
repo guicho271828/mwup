@@ -9,13 +9,15 @@
        (solve-problem-enhancing problem
                                 (lambda (problem)
                                   (multiple-value-call
-                                      #'cost-handling-wrapper
+                                      #'mangle-wrapper
                                     (multiple-value-call
-                                        #'filter-trivial-macros
-                                      (enhance problem domain
-                                               (append
-                                                (maybe-junk-macros problem domain)
-                                                (macros-from-plans problem domain macro-paths))))))
+                                        #'cost-handling-wrapper
+                                      (multiple-value-call
+                                          #'filter-trivial-macros
+                                        (enhance problem domain
+                                                 (append
+                                                  (maybe-junk-macros problem domain)
+                                                  (macros-from-plans problem domain macro-paths)))))))
                                 :time-limit 1 ; satisficing
                                 :name *search*
                                 :options *options*
