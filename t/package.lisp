@@ -85,12 +85,12 @@
     (finishes
       (launch-online "--validation" "t/test1/p01.pddl" "t/test1/domain.pddl"))
     (finishes
-      (launch-online "--validation" "t/test1/p01.pddl" "t/test1/domain.pddl"
-              (directory (merge-pathnames "t/test1/p01.macro.*"))))
+      (apply #'launch-online "--validation" "t/test1/p01.pddl" "t/test1/domain.pddl"
+             (directory (merge-pathnames "t/test1/p01.macro.*"))))
     (finishes
-      (launch-online "--validation" "--add-macro-cost"
-              "t/test1/p01.pddl" "t/test1/domain.pddl"
-              (directory (merge-pathnames "t/test1/p01.macro.*"))))))
+      (apply #'launch-online "--validation" "--add-macro-cost"
+             "t/test1/p01.pddl" "t/test1/domain.pddl"
+             (directory (merge-pathnames "t/test1/p01.macro.*"))))))
 
 (test junk
   (signals error
