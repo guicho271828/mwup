@@ -146,6 +146,9 @@
 
 (test mangle
   (finishes
-   (launch-online "--validation" "--plain" "--mangle" "t/test3/p01.pddl" "t/test3/domain.pddl")))
+   (launch-online "--validation" "--plain" "--mangle" "t/test3/p01.pddl" "t/test3/domain.pddl"))
+  (finishes
+   (launch-online "--validation" "--junk-type" ":relative-greedy" "--junk" "3" "5"
+                  "--mangle" "t/test3/p01.pddl" "t/test3/domain.pddl")))
 
 
