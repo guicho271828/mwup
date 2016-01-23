@@ -24,18 +24,18 @@
                 (problem (funcall (compose (if *remove-cost* #'remove-costs #'identity)
                                            (if *mangle* #'mangle #'identity))
                                   problem)))
-            (let ((plans (test-problem-common
+            (let ((paths (test-problem-common
                           (write-pddl problem "problem.pddl" dir)
                           (write-pddl domain "domain.pddl" dir)
                           :name *search*
                           :options *options*
                           :verbose *verbose*
                           :iterated *iterated*)))
-              (finalize-plans-plain dpath ppath plans domain problem))))))))
+              (finalize-plans-plain dpath ppath paths domain problem))))))))
 
-(defun finalize-plans-plain (dpath ppath plans domain problem)
-  (and plans
-       (iter (for path in plans)
+(defun finalize-plans-plain (dpath ppath paths domain problem)
+  (and paths
+       (iter (for path in paths)
              (for i from 1)
              (for new-path =
                   (merge-pathnames
