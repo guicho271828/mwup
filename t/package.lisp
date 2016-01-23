@@ -36,7 +36,21 @@
                  )))
 
 (defun launch-online (&rest args)
-  (let ((*default-pathname-defaults* (asdf:system-source-directory :mwup)))
+  (let ((*default-pathname-defaults* (asdf:system-source-directory :mwup))
+        (mwup::*enhance-only* nil)
+        (mwup::*verbose* nil)
+        (mwup::*validation* nil)
+        (mwup::*plain* nil)
+        (mwup::*lift* nil)
+        (mwup::*seed* t)
+        (mwup::*junk* nil)
+        (mwup::*junk-type* :reservoir)
+        (mwup::*iterated* nil)
+        (mwup::*add-macro-cost* nil)
+        (mwup::*remove-cost* nil)
+        (mwup::*search* "fd-clean")
+        (mwup::*options* "--search-options --if-unit-cost --heuristic hlm,hff=lm_ff_syn(lm_rhw(reasonable_orders=true)) --search lazy_greedy([hff,hlm],preferred=[hff,hlm]) --if-non-unit-cost --heuristic hlm1,hff1=lm_ff_syn(lm_rhw(reasonable_orders=true,lm_cost_type=one,cost_type=one)) --search lazy_greedy([hff1,hlm1],preferred=[hff1,hlm1],cost_type=one,reopen_closed=false) --always")
+        (mwup::*mangle* nil))
     (assert (apply #'mwup::mwup-run args))))
 
 (test ros-dry-runs
