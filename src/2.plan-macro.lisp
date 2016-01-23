@@ -9,13 +9,15 @@
        (solve-problem-enhancing problem
                                 (lambda (problem)
                                   (multiple-value-call
-                                      #'cost-handling-wrapper
+                                      #'mangle-wrapper
                                     (multiple-value-call
-                                        #'filter-trivial-macros
-                                      (enhance problem domain
-                                               (append
-                                                (maybe-junk-macros problem domain)
-                                                (macros-from-plans problem domain macro-paths))))))
+                                        #'cost-handling-wrapper
+                                      (multiple-value-call
+                                          #'filter-trivial-macros
+                                        (enhance problem domain
+                                                 (append
+                                                  (maybe-junk-macros problem domain)
+                                                  (macros-from-plans problem domain macro-paths)))))))
                                 :time-limit 1 ; satisficing
                                 :name *search*
                                 :options *options*
@@ -59,41 +61,47 @@
     (unless *enhance-only*
       (when (zerop (length macros)) (signal 'no-macro))
       (let* ((dir (mktemp "enhanced"))
-             (epp (write-pddl eproblem "eproblem.pddl" dir))
-             (edp (write-pddl edomain "edomain.pddl" dir))
-             (plans (handler-bind ((trivial-signal:unix-signal
+             (paths (handler-bind ((trivial-signal:unix-signal
                                     (lambda (c)
                                       (tformat t "main search terminated")
                                       (invoke-restart
                                        (find-restart 'pddl:finish c)))))
-                      (apply #'test-problem-common epp edp test-problem-args))))
-        (tformat t "~a plans found." (length plans))
-        (when *validation*
-          (iter (for plp in plans)
-                (for i from 0)
-                (tformat t "~% validating plan ~a." i)
-                (validate-plan edp epp plp :verbose *verbose*)))
+                      (apply #'test-problem-common
+                             (write-pddl eproblem "eproblem.pddl" dir)
+                             (write-pddl edomain "edomain.pddl" dir)
+                             test-problem-args))))
+        (tformat t "~a plans found." (length paths))
         (tformat t "~%decoding the result plan.")
-        (mapcar (lambda (plan i)
-                  (terpri)
-                  (block nil
-                    (pprint-logical-block (*standard-output* nil :per-line-prefix (format nil "Plan ~a " i))
-                      (return 
-                        (decode-plan-all macros plan edomain eproblem)))))
-                plans (iota (length plans)))))))
+        (let ((macros (map 'vector #'demangle macros)))
+          (mapcar (lambda (plan i)
+                    (terpri)
+                    (block nil
+                      (pprint-logical-block (*standard-output* nil :per-line-prefix (format nil "Plan ~a " i))
+                        (return
+                          (decode-plan-all macros plan)))))
+                  (mapcar (lambda (path)
+                            (pddl-plan :actions (map 'vector #'demangle
+                                                     (actions (pddl-plan :path path
+                                                                         :domain edomain
+                                                                         :problem eproblem)))
+                                       :domain (demangle edomain)
+                                       :problem (demangle eproblem)))
+                          paths)
+                  (iota (length paths))))))))
 
-(defun decode-plan-all (macros plan edomain eproblem)
+(defun decode-plan-all (macros plan)
   (handler-bind ((warning #'muffle-warning)
                  (undefined-predicate
                   (lambda (c)
                     (when (and (not *lift*)
                                (eq 'equal (name c)))
                       (invoke-restart 'ignore)))))
-    (reduce #'decode-plan macros
-            ;;            ^^^^^^
-            ;; based on edomain/eproblem: incompatible with edomain/eproblem
-            :from-end t
-            :initial-value (pddl-plan :path plan :domain edomain :problem eproblem))))
+    #+nil
+    (tformat t "~:@<~;Decoding plan ~a with macros ~a~:@>"
+             (map 'vector #'name (actions plan))
+             (map 'vector #'name macros))
+    ;; ^^^^ too many output
+    (reduce #'decode-plan macros :from-end t :initial-value plan)))
 
 
 

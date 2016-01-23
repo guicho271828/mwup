@@ -1,12 +1,10 @@
 
 (in-package :mwup.test)
 
-(def-suite :mwup.benchmark)
-(in-suite :mwup.benchmark)
-
 (defun rel (path)
   (asdf:system-relative-pathname :mwup path))
 
+#+nil
 (test benchmark
       ;; expect >4000 macros
   (multiple-value-bind (dname domain) (mwup::suppress (parse-file (rel "t/test1/domain.pddl") nil t))

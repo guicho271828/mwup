@@ -16,17 +16,17 @@
   :description "Test system of mwup"
   :license "WTFPL"
   :depends-on (:mwup
-               :fiveam)
+               :1am)
   :components ((:module "t"
                 :components
                 ((:file "package")
                  (:file "junk-generation-benchmark"))))
   :perform (test-op :after (op c)
-                    (uiop:run-program
-                     (format nil "make -j -C ~a"
-                             (asdf:system-source-directory :mwup))
-                     :output t
-                     :error-output t)
+                    ;; (uiop:run-program
+                    ;;  (format nil "make -j -C ~a"
+                    ;;          (asdf:system-source-directory :mwup))
+                    ;;  :output t
+                    ;;  :error-output t)
                     (uiop:run-program
                      (format nil "~a/t/cgroup-setup.sh"
                              (asdf:system-source-directory :mwup))
@@ -34,4 +34,4 @@
                      :error-output t
                      ;; for tests on CI
                      :ignore-error-status t)
-                    (eval (read-from-string "(every #'fiveam::TEST-PASSED-P (5am:run! :mwup))"))))
+                    (eval (read-from-string "(1am:run)"))))
