@@ -41,7 +41,9 @@
                   (merge-pathnames
                    (format nil "~a.plan.~a"
                            (pathname-name ppath) i)))
-             (when (probe-file new-path) (delete-file new-path))
+             (when (probe-file new-path)
+               (tformat t "Deleting ~a" new-path)
+               (delete-file new-path))
              (write-plan (pddl-plan :actions (map 'vector #'demangle
                                                   (actions (pddl-plan :path path
                                                                       :domain domain
