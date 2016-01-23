@@ -38,4 +38,5 @@
 (defmethod demangle ((ga pddl-ground-action))
   (shallow-copy ga
                 :name (name (demangle (action (domain ga) (name ga))))
-                :domain (demangle (domain ga))))
+                :domain (demangle (domain ga))
+                :problem (demangle (problem ga))))
