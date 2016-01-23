@@ -72,21 +72,22 @@
                              test-problem-args))))
         (tformat t "~a plans found." (length paths))
         (tformat t "~%decoding the result plan.")
-        (mapcar (lambda (plan i)
-                  (terpri)
-                  (block nil
-                    (pprint-logical-block (*standard-output* nil :per-line-prefix (format nil "Plan ~a " i))
-                      (return 
-                        (decode-plan-all macros plan)))))
-                (mapcar (lambda (path)
-                          (pddl-plan :actions (map 'vector #'demangle
-                                                   (actions (pddl-plan :path path
-                                                                       :domain edomain
-                                                                       :problem eproblem)))
-                                     :domain (demangle edomain)
-                                     :problem (demangle eproblem)))
-                        paths)
-                (iota (length paths)))))))
+        (let ((macros (map 'vector #'demangle macros)))
+          (mapcar (lambda (plan i)
+                    (terpri)
+                    (block nil
+                      (pprint-logical-block (*standard-output* nil :per-line-prefix (format nil "Plan ~a " i))
+                        (return
+                          (decode-plan-all macros plan)))))
+                  (mapcar (lambda (path)
+                            (pddl-plan :actions (map 'vector #'demangle
+                                                     (actions (pddl-plan :path path
+                                                                         :domain edomain
+                                                                         :problem eproblem)))
+                                       :domain (demangle edomain)
+                                       :problem (demangle eproblem)))
+                          paths)
+                  (iota (length paths))))))))
 
 (defun decode-plan-all (macros plan)
   (handler-bind ((warning #'muffle-warning)
@@ -95,6 +96,11 @@
                     (when (and (not *lift*)
                                (eq 'equal (name c)))
                       (invoke-restart 'ignore)))))
+    #+nil
+    (tformat t "~:@<~;Decoding plan ~a with macros ~a~:@>"
+             (map 'vector #'name (actions plan))
+             (map 'vector #'name macros))
+    ;; ^^^^ too many output
     (reduce #'decode-plan macros :from-end t :initial-value plan)))
 
 
