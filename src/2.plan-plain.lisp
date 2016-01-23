@@ -21,7 +21,9 @@
           (let ((domain (funcall (compose (if *remove-cost* #'remove-costs #'identity)
                                           (if *mangle* #'mangle #'identity))
                                  domain))
-                (problem (funcall (if *remove-cost* #'remove-costs #'identity) problem)))
+                (problem (funcall (compose (if *remove-cost* #'remove-costs #'identity)
+                                           (if *mangle* #'mangle #'identity))
+                                  problem)))
             (let ((plans (test-problem-common
                           (write-pddl problem "problem.pddl" dir)
                           (write-pddl domain "domain.pddl" dir)
