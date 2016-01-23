@@ -71,8 +71,11 @@
     (finishes
       (launch-online "--validation" "--plain" "t/test2/p01.pddl" "t/test2/domain.pddl"))
     (finishes
-      (launch-online "--validation" "--plain" "t/test3/p01.pddl" "t/test3/domain.pddl"
-              (directory (merge-pathnames "t/test3/p01.macro.*"))))))
+      (apply #'launch-online "--validation" "--plain" "t/test1/p01.pddl" "t/test1/domain.pddl"
+             (directory (merge-pathnames "t/test1/p01.macro.*"))))
+    (finishes
+      (apply #'launch-online "--validation" "--plain" "t/test3/p01.pddl" "t/test3/domain.pddl"
+             (directory (merge-pathnames "t/test3/p01.macro.*"))))))
 
 (test macros
   (let ((*default-pathname-defaults*
