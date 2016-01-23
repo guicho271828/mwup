@@ -16,7 +16,7 @@
   :description "Test system of mwup"
   :license "WTFPL"
   :depends-on (:mwup
-               :fiveam)
+               :1am)
   :components ((:module "t"
                 :components
                 ((:file "package")
@@ -34,4 +34,4 @@
                      :error-output t
                      ;; for tests on CI
                      :ignore-error-status t)
-                    (eval (read-from-string "(every #'fiveam::TEST-PASSED-P (5am:run! :mwup))"))))
+                    (eval (read-from-string "(1am:run)"))))

@@ -7,16 +7,10 @@
 (defpackage :mwup.test
   (:use :cl
         :mwup
-        :fiveam
-        :pddl.macro-action :pddl :alexandria :iterate
+        :1am :alexandria :iterate
         :uiop/run-program)
   (:shadowing-import-from :iterate :minimize :maximize))
 (in-package :mwup.test)
-
-
-
-(def-suite :mwup)
-(in-suite :mwup)
 
 ;; run test with (run! test-name) 
 
@@ -51,14 +45,14 @@
         (mwup::*search* "fd-clean")
         (mwup::*options* "--search-options --if-unit-cost --heuristic hlm,hff=lm_ff_syn(lm_rhw(reasonable_orders=true)) --search lazy_greedy([hff,hlm],preferred=[hff,hlm]) --if-non-unit-cost --heuristic hlm1,hff1=lm_ff_syn(lm_rhw(reasonable_orders=true,lm_cost_type=one,cost_type=one)) --search lazy_greedy([hff1,hlm1],preferred=[hff1,hlm1],cost_type=one,reopen_closed=false) --always")
         (mwup::*mangle* nil))
-    (assert (apply #'mwup::mwup-run args))))
+    (apply #'mwup::mwup-run args)))
 
 (test ros-dry-runs
-  (finishes
+  (is
     (launch-online))
-  (finishes
+  (is
     (launch-online "--plain"))
-  (finishes
+  (is
     (launch-online "--enhance-only"))
   (signals error
     (launch-online "--nosuchflag")))
@@ -66,28 +60,28 @@
 (test plain
   (let ((*default-pathname-defaults*
          (asdf:system-source-directory :mwup)))
-    (finishes
+    (is
       (launch-online "--validation" "--plain" "t/test1/p01.pddl"))
-    (finishes
+    (is
       (launch-online "--validation" "--plain" "t/test2/p01.pddl" "t/test2/domain.pddl"))
-    (finishes
+    (is
       (apply #'launch-online "--validation" "--plain" "t/test1/p01.pddl" "t/test1/domain.pddl"
              (directory (merge-pathnames "t/test1/p01.macro.*"))))
-    (finishes
+    (is
       (apply #'launch-online "--validation" "--plain" "t/test3/p01.pddl" "t/test3/domain.pddl"
              (directory (merge-pathnames "t/test3/p01.macro.*"))))))
 
 (test macros
   (let ((*default-pathname-defaults*
          (asdf:system-source-directory :mwup)))
-    (finishes
+    (is
       (launch-online "--validation" "t/test1/p01.pddl"))
-    (finishes
+    (is
       (launch-online "--validation" "t/test1/p01.pddl" "t/test1/domain.pddl"))
-    (finishes
+    (is
       (apply #'launch-online "--validation" "t/test1/p01.pddl" "t/test1/domain.pddl"
              (directory (merge-pathnames "t/test1/p01.macro.*"))))
-    (finishes
+    (is
       (apply #'launch-online "--validation" "--add-macro-cost"
              "t/test1/p01.pddl" "t/test1/domain.pddl"
              (directory (merge-pathnames "t/test1/p01.macro.*"))))))
@@ -101,33 +95,33 @@
   ;; 
   ;; 
   (dolist (arg '("10" "0" "5000" ":infinity"))
-    (finishes
+    (is
       (launch-online "--validation" "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl")))
   (dolist (arg '("-1" "0.5" ":someother"))
     (signals error
       (launch-online "--validation" "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl"))))
 
 (test gc
-  (finishes
+  (is
     (launch-online "--validation" "--junk" "2" "10" "--megabytes-consed-between-gcs" "10" "t/test3/p01.pddl" "t/test3/domain.pddl")))
 
 (test fastjunk
   (dolist (arg '("10" "0" "5000" ":infinity"))
-    (finishes
+    (is
       (launch-online "--validation" "--fastjunk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl")))
   (dolist (arg '("-1" "0.5" ":someother"))
     (signals error
       (launch-online "--validation" "--fastjunk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl"))))
 
 (test seed
-  (finishes
+  (is
     (launch-online "--validation" "--seed" "2016" "--junk" "2" "10" "t/test2/p01.pddl" "t/test2/domain.pddl"))
-  (finishes
+  (is
     (launch-online "--validation" "--seed" "t" "--junk" "2" "10" "t/test2/p01.pddl" "t/test2/domain.pddl")))
 
 (test junk-type
   (dolist (arg '(":greedy" ":reservoir"))
-    (finishes
+    (is
       (launch-online "--junk" "2" "10" "--junk-type" arg "t/test2/p01.pddl" "t/test2/domain.pddl")))
   (dolist (arg '(":someother"))
     (signals error
@@ -135,7 +129,7 @@
 
 (test relative-greedy
   (dolist (arg '("10" "0" "0.00001" "5000"))
-    (finishes
+    (is
       (launch-online "--validation" "--junk-type" ":relative-greedy"
               "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl")))
   (dolist (arg '("-1" ":someother" ":infinity"))
@@ -143,9 +137,9 @@
       (launch-online "--validation" "--junk-type" ":relative-greedy"
               "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl"))))
 
-(test init
+(test init-macro
   (dolist (arg '("10" "0" "5000" ":infinity"))
-    (finishes
+    (is
       (launch-online "--validation" "--junk" "2" arg "--junk-type" ":init" "t/test3/p01.pddl" "t/test3/domain.pddl")))
   (dolist (arg '("-1" "0.5" ":someother"))
     (signals error
@@ -153,8 +147,8 @@
 
 (test relative-init
   (dolist (arg '("10" "0" "0.00001" "5000"))
-    (finishes
-      (launch-online "--validation" "--junk-type" ":relative-init"
+    (is
+     (launch-online "--validation" "--junk-type" ":relative-init"
               "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl")))
   (dolist (arg '("-1" ":someother" ":infinity"))
     (signals error
@@ -162,10 +156,10 @@
               "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl"))))
 
 (test mangle
-  (finishes
+  (is
    (launch-online "--validation" "--plain" "--mangle" "t/test3/p01.pddl" "t/test3/domain.pddl"))
-  (finishes
-   (launch-online "--validation" "--junk-type" ":relative-greedy" "--junk" "3" "5"
-                  "--mangle" "t/test3/p01.pddl" "t/test3/domain.pddl")))
+  (is
+   (launch-online "-v" "--validation" "--junk" "2" ":infinity"
+                  "--mangle" "t/test2/p01.pddl" "t/test2/domain.pddl")))
 
 
