@@ -22,11 +22,11 @@
                 ((:file "package")
                  (:file "junk-generation-benchmark"))))
   :perform (test-op :after (op c)
-                    (uiop:run-program
-                     (format nil "make -j -C ~a"
-                             (asdf:system-source-directory :mwup))
-                     :output t
-                     :error-output t)
+                    ;; (uiop:run-program
+                    ;;  (format nil "make -j -C ~a"
+                    ;;          (asdf:system-source-directory :mwup))
+                    ;;  :output t
+                    ;;  :error-output t)
                     (uiop:run-program
                      (format nil "~a/t/cgroup-setup.sh"
                              (asdf:system-source-directory :mwup))
