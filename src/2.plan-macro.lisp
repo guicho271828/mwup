@@ -61,7 +61,7 @@
     (unless *enhance-only*
       (when (zerop (length macros)) (signal 'no-macro))
       (let* ((dir (mktemp "enhanced"))
-             (plans (handler-bind ((trivial-signal:unix-signal
+             (paths (handler-bind ((trivial-signal:unix-signal
                                     (lambda (c)
                                       (tformat t "main search terminated")
                                       (invoke-restart
@@ -70,7 +70,7 @@
                              (write-pddl eproblem "eproblem.pddl" dir)
                              (write-pddl edomain "edomain.pddl" dir)
                              test-problem-args))))
-        (tformat t "~a plans found." (length plans))
+        (tformat t "~a plans found." (length paths))
         (tformat t "~%decoding the result plan.")
         (mapcar (lambda (plan i)
                   (terpri)
@@ -78,20 +78,24 @@
                     (pprint-logical-block (*standard-output* nil :per-line-prefix (format nil "Plan ~a " i))
                       (return 
                         (decode-plan-all macros plan edomain eproblem)))))
-                plans (iota (length plans)))))))
+                (mapcar (lambda (path)
+                          (pddl-plan :actions (map 'vector #'demangle
+                                                   (actions (pddl-plan :path path
+                                                                       :domain edomain
+                                                                       :problem eproblem)))
+                                     :domain (demangle edomain)
+                                     :problem (demangle eproblem)))
+                        paths)
+                (iota (length paths)))))))
 
-(defun decode-plan-all (macros plan edomain eproblem)
+(defun decode-plan-all (macros plan)
   (handler-bind ((warning #'muffle-warning)
                  (undefined-predicate
                   (lambda (c)
                     (when (and (not *lift*)
                                (eq 'equal (name c)))
                       (invoke-restart 'ignore)))))
-    (reduce #'decode-plan macros
-            ;;            ^^^^^^
-            ;; based on edomain/eproblem: incompatible with edomain/eproblem
-            :from-end t
-            :initial-value (pddl-plan :path plan :domain edomain :problem eproblem))))
+    (reduce #'decode-plan macros :from-end t :initial-value plan)))
 
 
 
