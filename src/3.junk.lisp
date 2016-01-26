@@ -56,7 +56,7 @@
                    (:reservoir
                     (check-type param (integer 0))
                     (tformat t "Adding junk macros: length: ~a quantity: ~A" length param)
-                    (junk-macros length param actions domain problem))
+                    (junk-macros-reservoir length param actions domain problem))
                    (:greedy
                     (check-type param (integer 0))
                     (tformat t "Adding junk macros: length: ~a quantity: ~A" length param)
@@ -64,10 +64,10 @@
                         (progn
                           (tformat t "Try standard Reservoir Sampling method to get the minimum required number of macros")
                           ;; for cases where there are too few ground macros
-                          (junk-macros length param actions domain problem))
+                          (junk-macros-reservoir length param actions domain problem))
                       (minimum-requirement ()
                         (tformat t "There are required number of macros, switching to the Naive Sampling")
-                        (junk-macros3 length param actions domain problem))))
+                        (junk-macros-greedy length param actions domain problem))))
                    (:relative-greedy
                     (let* ((prim-len (length actions))
                            (quantity (ceiling (* prim-len param 1/100))))
@@ -76,10 +76,10 @@
                           (progn
                             (tformat t "Try standard Reservoir Sampling method to get the minimum required number of macros")
                             ;; for cases where there are too few ground macros
-                            (junk-macros length quantity actions domain problem))
+                            (junk-macros-reservoir length quantity actions domain problem))
                         (minimum-requirement ()
                           (tformat t "There are required number of macros, switching to the Naive Sampling")
-                          (junk-macros3 length quantity actions domain problem)))))
+                          (junk-macros-greedy length quantity actions domain problem)))))
                    (:init
                     (check-type param (integer 0))
                     ;; generate from the initial state
@@ -124,7 +124,7 @@
 ;;    (if (<= j k)
 ;;        (setf (aref r i) (aref s i))))
 
-(defun junk-macros (length quantity actions *domain* *problem*)
+(defun junk-macros-reservoir (length quantity actions *domain* *problem*)
   "Use Reservoir Sampling (Algorithm R by Jeffrey Vitter) https://en.wikipedia.org/wiki/Reservoir_sampling
 quantity = k
 count    = i
@@ -162,7 +162,7 @@ count    = i
                   (nullary-macro-action (nreverse (coerce actions 'vector)))))))))
 
 #+nil
-(defun junk-macros2 (length quantity actions *domain* *problem*)
+(defun junk-macros-reservoir-opt (length quantity actions *domain* *problem*)
   "Use Reservoir Sampling (Algorithm R by Jeffrey Vitter) https://en.wikipedia.org/wiki/Reservoir_sampling
 quantity = k
 count    = i
@@ -203,7 +203,7 @@ optimized using type information, but not that effective since the inner functio
            (collect
                (nullary-macro-action (nreverse (coerce actions 'vector))))))))
 
-(defun junk-macros3 (length quantity actions *domain* *problem*)
+(defun junk-macros-greedy (length quantity actions *domain* *problem*)
   "Faster alternative which randomly selects from the next applicable action.
 This sacrifices the uniformness of the sampling because the branches with
 less siblings have high probability of being selected."
