@@ -6,7 +6,6 @@ dependencies:
   pre:
     - curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh
     - ros install ccl-bin
-    - git submodule update --init
   cache_directories:
     - ~/.roswell/
 
