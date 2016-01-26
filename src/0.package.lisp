@@ -60,9 +60,16 @@ fd-clean and specifies those equivalent to LAMA2011.")
 
 (defvar *mangle* nil "Action names are mangled.")
 
+(define-condition invalid-arguments (simple-error) ())
+
 (defun main (&rest args)
   (uiop:quit
-   (if (apply #'mwup-run args) 0 2)))
+   (if (handler-case (apply #'mwup-run args)
+         (invalid-arguments ()
+           (format *error-output* "~%Invalid Arguments!~%")
+           (parse nil)                  ; returns t
+           nil))
+       0 2)))
 
 (defun mwup-run (&rest args)
   "separated for testing purpose"
@@ -137,8 +144,7 @@ fd-clean and specifies those equivalent to LAMA2011.")
              (* 1024 1024 (parse-integer bytes)))
        (parse rest))
       ((list* (string* #\-) _)
-       (parse nil)
-       (warn "~%Invalid Arguments!~%"))
+       (error 'invalid-arguments))
       ((list* _ _)
        (format t "~%; Build date : ~a~%" *build-date*)
        (apply #'solve (mapcar #'merge-pathnames args)))
@@ -177,5 +183,4 @@ fd-clean and specifies those equivalent to LAMA2011.")
        (terpri *error-output*)
        t)
       (_
-       (parse nil)
-       (warn "~%Invalid Arguments!~%"))))
+       (error 'invalid-arguments))))
