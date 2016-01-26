@@ -11,5 +11,6 @@ dependencies:
 
 test:
   override:
+    - make
     - ros -L sbcl-bin testscr.ros
     - ros -L ccl-bin testscr.ros
