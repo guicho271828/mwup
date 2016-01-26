@@ -149,7 +149,7 @@ fd-clean and specifies those equivalent to LAMA2011.")
        (format t "~%; Build date : ~a~%" *build-date*)
        (apply #'solve (mapcar #'merge-pathnames args)))
       (nil
-       (format *error-output* "~&Usage: component-planner PROBLEM [DOMAIN] [MACROPLANS...]~
+       (format *error-output* "~&Usage: mwup PROBLEM [DOMAIN] [MACROPLANS...]~
                ~%~@{~4t~40<~(~a~)~;~{~a ~}~> : ~@(~a~)~%~}"
                '-----------------debug-options---------- nil "-------------------------------"
                '-v nil (documentation '*verbose* 'variable)
