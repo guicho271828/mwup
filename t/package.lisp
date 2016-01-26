@@ -162,4 +162,26 @@
    (launch-online "-v" "--validation" "--junk" "2" ":infinity"
                   "--mangle" "t/test2/p01.pddl" "t/test2/domain.pddl")))
 
-
+(test build
+  (uiop:run-program
+   (format nil "make -j -C ~a"
+           (asdf:system-source-directory :mwup))
+   :output t
+   :error-output t)
+  (launch)
+  (launch "--validation" "--plain" "t/test1/p01.pddl")
+  (launch "--validation" "t/test1/p01.pddl")
+  (dolist (arg '("10" "0" "5000" ":infinity"))
+    (launch "--validation" "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl")
+    (launch "--validation" "--fastjunk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl")
+    (launch "--validation" "--junk" "2" arg "--junk-type" ":init"
+                   "t/test3/p01.pddl" "t/test3/domain.pddl"))
+  (launch "--validation" "--plain" "--mangle"
+          "t/test3/p01.pddl" "t/test3/domain.pddl")
+  (dolist (arg '("10" "0.1" "0"))
+    (launch "--validation" "--junk" "2" arg "--junk-type" ":relative-greedy"
+            "t/test3/p01.pddl" "t/test3/domain.pddl")
+    (launch "--validation" "--junk" "2" arg "--junk-type" ":relative-init"
+            "t/test3/p01.pddl" "t/test3/domain.pddl"))
+  (dolist (arg '(":greedy" ":reservoir"))
+    (launch "--junk" "2" "10" "--junk-type" arg "t/test2/p01.pddl" "t/test2/domain.pddl")))
