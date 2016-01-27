@@ -214,27 +214,19 @@ less siblings have high probability of being selected."
       (labels ((rec (length macro list)
                  (if (zerop length)
                      list
-                     (let ((actions actions))
-                       (iter outer
-                             (for len = (length actions))
-                             (until (zerop len))
-                             (for flags = (make-array len :element-type 'bit :initial-element 0))
-                             (iter (generate count from 1 below (ceiling (/ len 2)))
-                                   (for i = (random len))
-                                   (if (zerop (aref flags i))
-                                       (setf (aref flags i) 1)
-                                       (next-iteration))
-                                   (next count)
-                                   (for a = (aref actions i))
-                                   (unless (conflict macro a)
-                                     (return-from outer
-                                       (rec (1- length)
-                                            (merge-ground-actions macro a)
-                                            (cons a list)))))
-                             (setf actions (iter (for a in-vector actions)
-                                                 (for f in-vector flags)
-                                                 (when (zerop f)
-                                                   (collect a result-type 'vector))))))
+                     ;;#+slow
+                     (let* ((len (length actions)))
+                       (iter (until (zerop len))
+                             (for i = (random len))
+                             (for a = (aref actions i))
+                             (if (conflict macro a)
+                                 (progn
+                                   (decf len)
+                                   (rotatef (aref actions i) (aref actions len)))
+                                 (return
+                                   (rec (1- length)
+                                        (merge-ground-actions macro a)
+                                        (cons a list))))))
                      #+slow
                      (let* ((len (length actions))
                             (flags (make-array len :element-type 'bit :initial-element 0)))
