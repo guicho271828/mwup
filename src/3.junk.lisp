@@ -296,6 +296,21 @@ less siblings have high probability of being selected."
     (labels ((rec (length state list)
                (if (zerop length)
                    list
+                   (let* ((len (length actions))
+                          (flags (make-array len :element-type 'bit :initial-element 0)))
+                     (iter (generate count below len)
+                           (for i = (random len))
+                           (if (zerop (aref flags i))
+                               (setf (aref flags i) 1)
+                               (next-iteration))
+                           (next count)
+                           (for a = (aref actions i))
+                           (unless (applicable state a)
+                             (return
+                               (rec (1- length)
+                                    (apply-ground-action a state)
+                                    (cons a list))))))
+                   #+slow
                    (let ((candidates (remove-if-not (curry #'applicable state) actions)))
                      (unless (zerop (length candidates))
                        (let ((a (random-elt candidates)))
