@@ -56,3 +56,20 @@
 ;;   96.55% CPU
 ;;   172,322,658 processor cycles
 ;;   9,219,296 bytes consed
+
+
+(test benchmark3
+  ;; expect >20000 macros
+  (let ((*package* (find-package :mwup))
+        (mwup::*start* (get-universal-time)))
+    (mwup::suppress
+      (multiple-value-bind (dname domain) (mwup::parse-file (rel "t/zenotravel/domain.pddl") nil t)
+        (declare (ignorable dname))
+        (multiple-value-bind (pname problem) (mwup::parse-file (rel "t/zenotravel/p01.pddl") nil t)
+          (declare (ignorable pname))
+          (let ((actions (mwup::get-all-ground-actions domain problem)))
+            (time
+             (mwup::junk-macros-greedy 5 (ceiling (* (length actions) 1 1/100)) actions domain problem))
+            (mwup::tformat t "finished")))))))
+
+(benchmark3)

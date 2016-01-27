@@ -216,12 +216,14 @@ less siblings have high probability of being selected."
                      list
                      (let* ((len (length actions))
                             (flags (make-array len :element-type 'bit :initial-element 0)))
-                       (iter (generate count below len)
+                       (iter (generate count from 1 below len)
                              (for i = (random len))
                              (if (zerop (aref flags i))
                                  (setf (aref flags i) 1)
                                  (next-iteration))
                              (next count)
+                             ;; (format t "~4<~a~> ~4<~a~> ~a~%" count len flags)
+                             ;; (sleep 0.2)
                              (for a = (aref actions i))
                              (unless (conflict macro a)
                                (return
