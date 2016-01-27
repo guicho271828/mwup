@@ -19,8 +19,7 @@
                :1am)
   :components ((:module "t"
                 :components
-                ((:file "package")
-                 (:file "junk-generation-benchmark"))))
+                ((:file "package"))))
   :perform (test-op :after (op c)
                     (uiop:run-program
                      (format nil "~a/t/cgroup-setup.sh"

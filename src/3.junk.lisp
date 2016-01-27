@@ -214,6 +214,21 @@ less siblings have high probability of being selected."
       (labels ((rec (length macro list)
                  (if (zerop length)
                      list
+                     (let* ((len (length actions))
+                            (flags (make-array len :element-type 'bit :initial-element 0)))
+                       (iter (generate count below len)
+                             (for i = (random len))
+                             (if (zerop (aref flags i))
+                                 (setf (aref flags i) 1)
+                                 (next-iteration))
+                             (next count)
+                             (for a = (aref actions i))
+                             (unless (conflict macro a)
+                               (return
+                                 (rec (1- length)
+                                      (merge-ground-actions macro a)
+                                      (cons a list))))))
+                     #+slow
                      (let ((candidates (remove-if (curry #'conflict macro) actions)))
                        (unless (zerop (length candidates))
                          (let ((a (random-elt candidates)))
