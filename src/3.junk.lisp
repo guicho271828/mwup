@@ -305,7 +305,7 @@ less siblings have high probability of being selected."
                                (next-iteration))
                            (next count)
                            (for a = (aref actions i))
-                           (unless (applicable state a)
+                           (when (applicable state a)
                              (return
                                (rec (1- length)
                                     (apply-ground-action a state)
