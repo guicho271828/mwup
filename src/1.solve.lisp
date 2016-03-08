@@ -46,7 +46,9 @@
                          (find-macros ppath))))
     (unwind-protect
         (if *plain*
-            (plan-plain dpath ppath)
+            (if (or *remove-cost* *mangle*)
+                (plan-plain dpath ppath)
+                (plan-plain-safe dpath ppath))
             (handler-case
                 (plan-macro dpath ppath macro-paths)
               (no-macro ()
