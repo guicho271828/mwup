@@ -4,6 +4,7 @@ machine:
 
 dependencies:
   pre:
+    - sudo apt-get install cgroup-bin
     - curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh
   cache_directories:
     - ~/.roswell/
