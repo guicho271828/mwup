@@ -20,6 +20,6 @@
         update = rebase
 [submodule "downward"]
 	path = downward
-	url = git@github.com:guicho271828/downward-fixed-build.git
+	url = git@github.com:guicho271828/CompactDownward.git
 	branch = master
         update = rebase
