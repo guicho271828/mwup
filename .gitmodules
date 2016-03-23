@@ -21,5 +21,3 @@
 [submodule "downward"]
 	path = downward
 	url = git@github.com:guicho271828/FastDownward.git
-	branch = typed-tiebreaking
-        update = rebase
