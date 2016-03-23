@@ -4,7 +4,7 @@
 all: mwup
 
 submodules:
-	git submodule update --init --recursive --remote --depth 50
+	git submodule update --init --recursive --remote
 	downward/build.py
 
 mwup: $(shell find -name "*.lisp") submodules
