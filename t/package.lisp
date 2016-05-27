@@ -164,7 +164,7 @@ Copyright (c) 2015 Masataro Asai (guicho2.71828@gmail.com)
 
 (test build
   (uiop:run-program
-   (format nil "make -j -C ~a"
+   (format nil "make -C ~a"
            (asdf:system-source-directory :mwup))
    :output t
    :error-output t)

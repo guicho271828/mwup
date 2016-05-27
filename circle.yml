@@ -4,6 +4,9 @@ machine:
 
 dependencies:
   pre:
+    - sudo apt-get install cgroup-bin
+    - sudo apt-get install -qq -y g++ make python flex bison cmake
+    - sudo apt-get install g++-multilib
     - curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh
   cache_directories:
     - ~/.roswell/
