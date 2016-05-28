@@ -1,5 +1,11 @@
 (in-package :mwup)
 
+(defmacro with-temp ((var name) &body body)
+  `(let ((,var (mktemp ,name)))
+     (unwind-protect
+         (progn ,@body)
+       (uiop:run-program (format nil "rm -rf ~a" (namestring ,var))))))
+
 (defun plan-plain (dpath ppath)
   (let ((dir (mktemp "plain")))
     (handler-bind ((trivial-signal:unix-signal
