@@ -42,7 +42,7 @@ If *junk* is NIL, no junk macros should be added.")
   of :reservoir, :greedy, :relative-greedy. :greedy is equivalent to
   --fastjunk. :relative-greedy treats QUANTITY argument as a percentage,
   and compute the actual quantity relative to the number of
-  primitive actions.")
+  primitive actions. Quantity could be :INFINITY.")
 (defvar *iterated* nil "")
 (defvar *add-macro-cost* nil "Add the action costs to the domain if it is a unit-cost domain.
 Primitive actions are given a cost of 1. Macro actions are given a cost same as its length.
