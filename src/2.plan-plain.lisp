@@ -7,7 +7,7 @@
        (uiop:run-program (format nil "rm -rf ~a" (namestring ,var))))))
 
 (defun plan-plain (dpath ppath)
-  (let ((dir (mktemp "plain")))
+  (with-temp (dir "plain")
     (handler-bind ((trivial-signal:unix-signal
                     (lambda (c)
                       (tformat t "plain search terminated")
@@ -62,7 +62,7 @@
 
 (defun plan-plain-safe (dpath ppath)
   (format t "~&Safe Plain mode. Plans are not parsed, and just copied to the tmp directory without processing.")
-  (let ((dir (mktemp "plain")))
+  (with-temp (dir "plain")
     (let ((plans
            (handler-bind ((trivial-signal:unix-signal
                            (lambda (c)

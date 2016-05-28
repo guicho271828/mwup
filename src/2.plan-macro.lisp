@@ -60,34 +60,34 @@
     (tformat t "Solving the enhanced problem with the main planner ~a." *search*)
     (unless *enhance-only*
       (when (zerop (length macros)) (signal 'no-macro))
-      (let* ((dir (mktemp "enhanced"))
-             (paths (handler-bind ((trivial-signal:unix-signal
-                                    (lambda (c)
-                                      (tformat t "main search terminated")
-                                      (invoke-restart
-                                       (find-restart 'pddl:finish c)))))
-                      (apply #'test-problem-common
-                             (write-pddl eproblem "eproblem.pddl" dir)
-                             (write-pddl edomain "edomain.pddl" dir)
-                             test-problem-args))))
-        (tformat t "~a plans found." (length paths))
-        (tformat t "~%decoding the result plan.")
-        (let ((macros (map 'vector #'demangle macros)))
-          (mapcar (lambda (plan i)
-                    (terpri)
-                    (block nil
-                      (pprint-logical-block (*standard-output* nil :per-line-prefix (format nil "Plan ~a " i))
-                        (return
-                          (decode-plan-all macros plan)))))
-                  (mapcar (lambda (path)
-                            (pddl-plan :actions (map 'vector #'demangle
-                                                     (actions (pddl-plan :path path
-                                                                         :domain edomain
-                                                                         :problem eproblem)))
-                                       :domain (demangle edomain)
-                                       :problem (demangle eproblem)))
-                          paths)
-                  (iota (length paths))))))))
+      (with-temp (dir "enhanced")
+        (let* ((paths (handler-bind ((trivial-signal:unix-signal
+                                      (lambda (c)
+                                        (tformat t "main search terminated")
+                                        (invoke-restart
+                                         (find-restart 'pddl:finish c)))))
+                        (apply #'test-problem-common
+                               (write-pddl eproblem "eproblem.pddl" dir)
+                               (write-pddl edomain "edomain.pddl" dir)
+                               test-problem-args))))
+          (tformat t "~a plans found." (length paths))
+          (tformat t "~%decoding the result plan.")
+          (let ((macros (map 'vector #'demangle macros)))
+            (mapcar (lambda (plan i)
+                      (terpri)
+                      (block nil
+                        (pprint-logical-block (*standard-output* nil :per-line-prefix (format nil "Plan ~a " i))
+                          (return
+                            (decode-plan-all macros plan)))))
+                    (mapcar (lambda (path)
+                              (pddl-plan :actions (map 'vector #'demangle
+                                                       (actions (pddl-plan :path path
+                                                                           :domain edomain
+                                                                           :problem eproblem)))
+                                         :domain (demangle edomain)
+                                         :problem (demangle eproblem)))
+                            paths)
+                    (iota (length paths)))))))))
 
 (defun decode-plan-all (macros plan)
   (handler-bind ((warning #'muffle-warning)

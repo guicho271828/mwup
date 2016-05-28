@@ -288,20 +288,20 @@ less siblings have high probability of being selected."
     acc))
 
 (defun get-all-ground-actions (domain problem)
-  (let* ((dir (mktemp "dump"))
-         (pp (write-pddl problem "problem.pddl" dir))
-         (dp (write-pddl domain "domain.pddl" dir))
-         (plans (test-problem-common pp dp
-                                     :verbose nil ;; *verbose* ;; only during debugging --- confuse log parser
-                                     :name "dump-action-clean"
-                                     :time-limit 1 ; satisficing
-                                     :memory 2000000
-                                     :hard-time-limit 3600
-                                     :options "--search-options --search eager(tiebreaking([g()]))")))
-    (assert (= 1 (length plans)))
-    (actions
-     (pddl-plan :domain domain :problem problem
-                :path (first plans)))))
+  (with-temp (dir "dump")
+    (let* ((pp (write-pddl problem "problem.pddl" dir))
+           (dp (write-pddl domain "domain.pddl" dir))
+           (plans (test-problem-common pp dp
+                                       :verbose nil ;; *verbose* ;; only during debugging --- confuse log parser
+                                       :name "dump-action-clean"
+                                       :time-limit 1 ; satisficing
+                                       :memory 2000000
+                                       :hard-time-limit 3600
+                                       :options "--search-options --search eager(tiebreaking([g()]))")))
+      (assert (= 1 (length plans)))
+      (actions
+       (pddl-plan :domain domain :problem problem
+                  :path (first plans))))))
 
 
 (defun init-macros (length quantity actions *domain* *problem*)
