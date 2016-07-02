@@ -166,6 +166,7 @@ fd-clean and specifies those equivalent to LAMA2011.")
                '--------------macro-options---------- nil "-------------------------------"
                '--plain nil (documentation '*plain* 'variable)
                '--mangle nil (documentation '*mangle* 'variable)
+               '--macro-prefix '(prefix) (documentation '*macro-prefix* 'variable)
                '--junk '(length quantity) (documentation '*junk* 'variable)
                '--fastjunk '(length quantity) "Same as --junk and --junk-type :greedy"
                '--junk-type '(type) (documentation '*junk-type* 'variable)
