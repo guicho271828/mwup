@@ -36,6 +36,9 @@
   "A list of 2 integers. 1st element is the length of the junk macros.
 2nd element specifies the number of junk macro.
 If *junk* is NIL, no junk macros should be added.")
+(defvar *macro-prefix* "JUNK-"
+  "A string prefix for macro operators, which may affect the successor ordering of the underlying planner.")
+
 ;; (declaim (type (member :reservoir :greedy :relative-greedy :init) *junk-type*))
 (defvar *junk-type* :reservoir
   "Specify the type of junk generation. one
@@ -90,6 +93,9 @@ fd-clean and specifies those equivalent to LAMA2011.")
        (parse rest))
       ((list* "--enhance-only" rest)
        (setf *enhance-only* t)
+       (parse rest))
+      ((list* "--macro-prefix" prefix rest)
+       (setf *macro-prefix* t)
        (parse rest))
       ((list* "--plain" rest)
        (format t "~&; Plain mode was activated, CAP runs only the main planner.")

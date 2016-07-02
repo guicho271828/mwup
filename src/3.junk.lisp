@@ -31,7 +31,7 @@
 (defun append-junk-tag (macro)
   (ematch macro
     ((pddl-action :name (place name))
-     (setf name (symbolicate 'junk- name))
+     (setf name (symbolicate *macro-prefix* name))
      macro)))
 
 (defun maybe-junk-macros (problem domain)
