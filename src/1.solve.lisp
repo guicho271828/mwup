@@ -39,20 +39,13 @@
   (pprint-logical-block (stream nil :per-line-prefix (format nil "~9@<(t=~d)~>" (elapsed)))
     (apply #'format stream format-string args)))
 
-(defun solve (ppath &optional (dpath (find-domain ppath)) &rest macro-paths)
+(defgeneric plan (mode dpath ppath))
+
+(defvar *macro-paths* nil)
+
+(defun solve (ppath &optional (dpath (find-domain ppath)) &rest *macro-paths*)
   (setf *start* (get-universal-time))
   (setf *random-state* (sb-ext:seed-random-state *seed*))
-  (let ((macro-paths (or macro-paths
-                         (find-macros ppath))))
-    (unwind-protect
-        (if *plain*
-            (if (or *remove-cost* *mangle*)
-                (plan-plain dpath ppath)
-                (plan-plain-safe dpath ppath))
-            (handler-case
-                (plan-macro dpath ppath macro-paths)
-              (no-macro ()
-                (plan-plain dpath ppath))))
-      (format t "~&Wall time: ~a sec~%" (elapsed)))))
-
-
+  (unwind-protect
+      (plan *mode* dpath ppath)
+    (format t "~&Wall time: ~a sec~%" (elapsed))))
