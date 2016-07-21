@@ -66,7 +66,7 @@
   (namestring dest))
 
 
-(defmethod plan ((mode (eql :plain-safe)) dpath ppath &key &allow-other-keys)
+(defmethod plan ((mode (eql :plain-safe)) dpath ppath)
   (format t "~&Safe Plain mode. Plans are not parsed, and just copied to the tmp directory without processing.")
   (with-temp (dir "plain")
     (let ((plans
