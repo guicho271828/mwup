@@ -12,3 +12,6 @@ mwup: $(shell find -name "*.lisp") submodules
 
 clean:
 	rm mwup
+
+test:
+	./testscr.ros
