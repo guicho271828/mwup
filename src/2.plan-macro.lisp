@@ -1,12 +1,12 @@
 (in-package :mwup)
 
-(defmethod plan :around ((mode (eql :junk-macro)) dpath ppath)
+(defmethod solve :around ((mode (eql :junk-macro)) dpath ppath)
   (handler-case
       (call-next-method)
     (no-macro ()
-      (plan :plain dpath ppath))))
+      (solve :plain dpath ppath))))
 
-(defmethod plan ((mode (eql :junk-macro)) dpath ppath)
+(defmethod solve ((mode (eql :junk-macro)) dpath ppath)
   (let ((*macro-paths* (or *macro-paths* (find-macros ppath))))
     (multiple-value-bind (dname domain) (suppress (parse-file dpath nil t))
       (multiple-value-bind (pname problem) (suppress (parse-file ppath nil t))

@@ -156,7 +156,7 @@ fd-clean and specifies those equivalent to LAMA2011.")
        (error 'invalid-arguments))
       ((list* _ _)
        (format t "~%; Build date : ~a~%" *build-date*)
-       (apply #'solve (mapcar #'merge-pathnames args)))
+       (apply #'solve-with-timer (mapcar #'merge-pathnames args)))
       (nil
        (format *error-output* "~&Usage: mwup PROBLEM [DOMAIN] [MACROPLANS...]~
                ~%~@{~4t~40<~(~a~)~;~{~a ~}~> : ~@(~a~)~%~}"

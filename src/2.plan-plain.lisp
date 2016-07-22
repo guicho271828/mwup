@@ -6,12 +6,12 @@
          (progn ,@body)
        (uiop:run-program (format nil "rm -rf ~a" (namestring ,var))))))
 
-(defmethod plan :around ((mode (eql :plain)) dpath ppath)
+(defmethod solve :around ((mode (eql :plain)) dpath ppath)
   (if (or *remove-cost* *mangle*)
       (call-next-method)
-      (plan :plain-safe dpath ppath)))
+      (solve :plain-safe dpath ppath)))
 
-(defmethod plan ((mode (eql :plain)) dpath ppath)
+(defmethod solve ((mode (eql :plain)) dpath ppath)
   (with-temp (dir "plain")
     (handler-bind ((trivial-signal:unix-signal
                     (lambda (c)
@@ -66,7 +66,7 @@
   (namestring dest))
 
 
-(defmethod plan ((mode (eql :plain-safe)) dpath ppath)
+(defmethod solve ((mode (eql :plain-safe)) dpath ppath)
   (format t "~&Safe Plain mode. Plans are not parsed, and just copied to the tmp directory without processing.")
   (with-temp (dir "plain")
     (let ((plans
