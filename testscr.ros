@@ -7,11 +7,7 @@ exec ros -Q -- $0 "$@"
 (ql:register-local-projects)
 (defun main (&rest argv)
   (declare (ignorable argv))
-  (uiop:quit (if (handler-case
-                     (progn
-                       (ql:quickload :mwup.test)
-                       (asdf:test-system :mwup))
-                   (serious-condition (c)
-                     (describe c)
-                     (uiop:quit 2)))
+  (uiop:quit (if (progn
+                   (ql:quickload :mwup.test)
+                   (asdf:test-system :mwup))
                  0 1)))

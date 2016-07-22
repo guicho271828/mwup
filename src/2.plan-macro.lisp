@@ -1,28 +1,35 @@
 (in-package :mwup)
 
-(defun plan-macro (dpath ppath macro-paths)
-  (multiple-value-bind (dname domain) (suppress (parse-file dpath nil t))
-    (multiple-value-bind (pname problem) (suppress (parse-file ppath nil t))
-      (print dname) (print domain) (print pname) (print problem)
-      (finalize-plans-macros
-       dpath ppath
-       (solve-problem-enhancing problem
-                                (lambda (problem)
-                                  (multiple-value-call
-                                      #'mangle-wrapper
+(defmethod solve :around ((mode (eql :junk-macro)) dpath ppath)
+  (handler-case
+      (call-next-method)
+    (no-macro ()
+      (solve :plain dpath ppath))))
+
+(defmethod solve ((mode (eql :junk-macro)) dpath ppath)
+  (let ((*macro-paths* (or *macro-paths* (find-macros ppath))))
+    (multiple-value-bind (dname domain) (suppress (parse-file dpath nil t))
+      (multiple-value-bind (pname problem) (suppress (parse-file ppath nil t))
+        (print dname) (print domain) (print pname) (print problem)
+        (finalize-plans-macros
+         dpath ppath
+         (solve-problem-enhancing problem
+                                  (lambda (problem)
                                     (multiple-value-call
-                                        #'cost-handling-wrapper
+                                        #'mangle-wrapper
                                       (multiple-value-call
-                                          #'filter-trivial-macros
-                                        (enhance problem domain
-                                                 (append
-                                                  (maybe-junk-macros problem domain)
-                                                  (macros-from-plans problem domain macro-paths)))))))
-                                :time-limit 1 ; satisficing
-                                :name *search*
-                                :options *options*
-                                :verbose *verbose*
-                                :iterated *iterated*)))))
+                                          #'cost-handling-wrapper
+                                        (multiple-value-call
+                                            #'filter-trivial-macros
+                                          (enhance problem domain
+                                                   (append
+                                                    (maybe-junk-macros problem domain)
+                                                    (macros-from-plans problem domain *macro-paths*)))))))
+                                  :time-limit 1 ; satisficing
+                                  :name *search*
+                                  :options *options*
+                                  :verbose *verbose*
+                                  :iterated *iterated*))))))
 
 (defun macros-from-plans (problem domain macro-paths)
   (iter (for path in macro-paths)
