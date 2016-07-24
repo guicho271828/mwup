@@ -66,7 +66,9 @@ Copyright (c) 2015 Masataro Asai (guicho2.71828@gmail.com)
             (directory (merge-pathnames "t/test1/p01.macro.*"))))
     (is
      (apply #'launch-online "--validation" "--plain" "t/test3/p01.pddl" "t/test3/domain.pddl"
-            (directory (merge-pathnames "t/test3/p01.macro.*"))))))
+            (directory (merge-pathnames "t/test3/p01.macro.*"))))
+    (is
+     (launch-online "--validation" "--plain" "t/adl/p01.pddl"))))
 
 (test macros
   (let ((*default-pathname-defaults*
