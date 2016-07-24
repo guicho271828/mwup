@@ -12,17 +12,13 @@
       (print dname) (print domain) (print pname) (print problem)
       (finalize-plans-macros
        dpath ppath
-       (solve-problem-enhancing problem
-                                (lambda (problem)
-                                  (multiple-value-call
-                                      #'mangle-wrapper
-                                    (multiple-value-call
-                                        #'cost-handling-wrapper
-                                      (multiple-value-call
-                                          #'filter-trivial-macros
-                                        (enhance problem domain
-                                                 (mapcar #'append-junk-tag
-                                                         (eval-macros problem domain)))))))
+       (solve-problem-enhancing (lambda ()
+                                  (funcall (apply #'multiple-value-compose
+                                                  (append *transformers*
+                                                          (list #'filter-trivial-macros
+                                                                #'basic-enhance)))
+                                           problem domain
+                                           (eval-macros problem domain)))
                                 :time-limit 1 ; satisficing
                                 :name *search*
                                 :options *options*

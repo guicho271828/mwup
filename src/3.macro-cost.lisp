@@ -1,12 +1,5 @@
 (in-package :mwup)
 
-(defun cost-handling-wrapper (edomain eproblem macros)
-  (if *remove-cost*
-      (remove-cost edomain eproblem macros)
-      (if *add-macro-cost*
-          (add-macro-cost edomain eproblem macros)
-          (values edomain eproblem macros))))
-
 (defun add-macro-cost (domain problem macros)
   "Add the action costs to the domain if it is a unit-cost domain.
 Primitive actions are given a cost of 1. Macro actions are given a cost same as its length."

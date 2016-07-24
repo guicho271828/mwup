@@ -13,18 +13,15 @@
         (print dname) (print domain) (print pname) (print problem)
         (finalize-plans-macros
          dpath ppath
-         (solve-problem-enhancing problem
-                                  (lambda (problem)
-                                    (multiple-value-call
-                                        #'mangle-wrapper
-                                      (multiple-value-call
-                                          #'cost-handling-wrapper
-                                        (multiple-value-call
-                                            #'filter-trivial-macros
-                                          (enhance problem domain
-                                                   (append
-                                                    (maybe-junk-macros problem domain)
-                                                    (macros-from-plans problem domain *macro-paths*)))))))
+         (solve-problem-enhancing (lambda ()
+                                    (funcall (apply #'multiple-value-compose
+                                                    (append *transformers*
+                                                            (list #'filter-trivial-macros
+                                                                  #'basic-enhance)))
+                                             problem domain
+                                             (append
+                                              (maybe-junk-macros problem domain)
+                                              (macros-from-plans problem domain *macro-paths*))))
                                   :time-limit 1 ; satisficing
                                   :name *search*
                                   :options *options*
@@ -55,10 +52,10 @@
                (always
                 (validate-plan dpath ppath plp :verbose *verbose*))))))
 
-(defun solve-problem-enhancing (problem method &rest test-problem-args)
+(defun solve-problem-enhancing (method &rest test-problem-args)
   (tformat t "Enhancing the problem with macros.")
-  (multiple-value-bind (eproblem edomain macros) (funcall method problem)
-    (tformat t "Enhancement finished on:~%   ~a~%-> ~a" (name problem) (name eproblem))
+  (multiple-value-bind (eproblem edomain macros) (funcall method)
+    (tformat t "Enhancement finished on: ~a" (name eproblem))
     (when *verbose* (room nil))
     (tformat t "Collecting Garbage...")
     (sb-ext:gc :full t)
