@@ -1,9 +1,7 @@
 (in-package :mwup)
 
 (defun mangle-wrapper (edomain eproblem macros)
-  (if *mangle*
-      (values (mangle edomain) (mangle eproblem) (map 'vector #'mangle macros))
-      (values edomain eproblem macros)))
+  (values (mangle edomain) (mangle eproblem) (map 'vector #'mangle macros)))
 
 (defgeneric mangle (object))
 (defgeneric demangle (object))
