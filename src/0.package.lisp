@@ -58,6 +58,9 @@ If *junk* is NIL, no junk macros should be added.")
   "search options to pass to the underlying planner. default value is for
 fd-clean and specifies those equivalent to LAMA2011.")
 
+(defvar *keep-tmp* nil
+  "Do not cleanup the temporary directory where the enhanced domain definition is written.")
+
 (define-condition invalid-arguments (simple-error) ())
 
 (defun main (&rest args)
@@ -82,6 +85,9 @@ fd-clean and specifies those equivalent to LAMA2011.")
     ;; debug options
     ((list* "-v" rest)
      (setf *verbose* t)
+     (parse rest))
+    ((list* "-d" rest)
+     (setf *keep-tmp* t)
      (parse rest))
     ((list* "--validation" rest)
      (setf *validation* t)
@@ -157,6 +163,7 @@ fd-clean and specifies those equivalent to LAMA2011.")
                ~%~@{~4t~40<~(~a~)~;~{~a ~}~> : ~@(~a~)~%~}"
              '-----------------debug-options---------- nil "-------------------------------"
              '-v nil (documentation '*verbose* 'variable)
+             '-d nil (documentation '*keep-tmp* 'variable)
              '--seed '(seed) (documentation '*seed* 'variable)
              '--megabytes-consed-between-gcs '(megabytes) "GC tuning"
              '--validation nil (documentation '*validation* 'variable)

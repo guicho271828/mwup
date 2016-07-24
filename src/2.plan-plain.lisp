@@ -4,7 +4,8 @@
   `(let ((,var (mktemp ,name)))
      (unwind-protect
          (progn ,@body)
-       (uiop:run-program (format nil "rm -rf ~a" (namestring ,var))))))
+       (unless *keep-tmp*
+         (uiop:run-program (format nil "rm -rf ~a" (namestring ,var)))))))
 
 (defmethod solve ((mode (eql :plain)) dpath ppath)
   (multiple-value-bind (dname domain)
