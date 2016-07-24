@@ -3,7 +3,8 @@
 (defun basic-enhance (problem domain macros)
   "Applies a basic transformation to the original domain/problem.
 Adds the macros to the domain and replaces problem's pointer to the domain"
-  (tformat t "Enhancing problem ~a and domain ~a with ~a macros" problem domain (length macros))
+  (tformat t "Enhancing problem ~a and domain ~a with ~a macros"
+           (name problem) (name domain) (length macros))
   (ematch domain
     ((pddl-domain name actions constants predicates)
      (let* ((edomain (shallow-copy domain
