@@ -77,116 +77,116 @@ fd-clean and specifies those equivalent to LAMA2011.")
 (defun parse (args)
   "parse the options"
   (when *verbose* (print args))
-    ;; special variables are set globally, in order to handle multithreaded environment correctly
-    (match args
-      ;; debug options
-      ((list* "-v" rest)
-       (setf *verbose* t)
-       (parse rest))
-      ((list* "--validation" rest)
-       (setf *validation* t)
-       (parse rest))
-      ((list* "--enhance-only" rest)
-       (setf *enhance-only* t)
-       (parse rest))
-      ((list* "--macro-prefix" prefix rest)
-       (setf *macro-prefix* prefix)
-       (parse rest))
-      ((list* "--plain" rest)
-       (format t "~&; Plain mode was activated, CAP runs only the main planner.")
-       (setf *mode* :plain)
-       (parse rest))
-      ((list* "--mode" mode rest)
-       (setf *mode* (read-from-string mode))
-       (parse rest))
-      ((list* "-t" time rest)
-       (setf *hard-time-limit* (parse-integer time))
-       (parse rest))
-      ((list* "-m" memory rest)
-       (setf *memory-limit* (parse-integer memory))
-       (parse rest))
-      ;; mwup?
-      ((list* "--force-lifted" rest)
-       (setf *lift* t)
-       (parse rest))
-      ((list* "--iterated" rest)
-       (setf *iterated* t)
-       (parse rest))
-      ((list* "--junk" length quantity rest)
-       (setf *junk* (list (read-from-string length)
-                          (read-from-string quantity)))
-       (parse rest))
-      ((list* "--fastjunk" rest)
-       (setf *junk-type* :greedy)
-       (format t "~& Fast junk generation activated, sacrificing uniformness")
-       (parse (list* "--junk" rest)))
-      ((list* "--junk-type" type rest)
-       (setf *junk-type* (read-from-string type))
-       (parse rest))
-      ((list* "--seed" seed rest)
-       (setf *seed* (read-from-string seed))
-       (parse rest))
-      ;; wrappers
-      ((list* "--mangle" rest)
-       (let ((*transformers* (cons #'mangle-wrapper *transformers*)))
-         (parse rest)))
-      ((list* "--add-macro-cost" rest)
-       (let ((*transformers* (cons #'add-macro-cost *transformers*)))
-         (parse rest)))
-      ((list* "--remove-cost" rest)
-       (let ((*transformers* (cons #'remove-cost *transformers*)))
-         (parse rest)))
-      ((list* "--search" planner rest)
-       (setf *search* planner)
-       (consume-until-hyphen
-        rest
-        (lambda (options rest)
-          (setf *options* options)
-          (parse rest))))
-      ((list* "--megabytes-consed-between-gcs" bytes rest)
-       (setf (sb-ext:bytes-consed-between-gcs)
-             (* 1024 1024 (parse-integer bytes)))
-       (parse rest))
-      ((list* (string* #\-) _)
-       (error 'invalid-arguments))
-      ((list* _ _)
-       (format t "~%; Build date : ~a~%" *build-date*)
-       (apply #'solve-with-timer (mapcar #'merge-pathnames args)))
-      (nil
-       (format *error-output* "~&Usage: mwup PROBLEM [DOMAIN] [MACROPLANS...]~
+  ;; special variables are set globally, in order to handle multithreaded environment correctly
+  (match args
+    ;; debug options
+    ((list* "-v" rest)
+     (setf *verbose* t)
+     (parse rest))
+    ((list* "--validation" rest)
+     (setf *validation* t)
+     (parse rest))
+    ((list* "--enhance-only" rest)
+     (setf *enhance-only* t)
+     (parse rest))
+    ((list* "--macro-prefix" prefix rest)
+     (setf *macro-prefix* prefix)
+     (parse rest))
+    ((list* "--plain" rest)
+     (format t "~&; Plain mode was activated, CAP runs only the main planner.")
+     (setf *mode* :plain)
+     (parse rest))
+    ((list* "--mode" mode rest)
+     (setf *mode* (read-from-string mode))
+     (parse rest))
+    ((list* "-t" time rest)
+     (setf *hard-time-limit* (parse-integer time))
+     (parse rest))
+    ((list* "-m" memory rest)
+     (setf *memory-limit* (parse-integer memory))
+     (parse rest))
+    ;; mwup?
+    ((list* "--force-lifted" rest)
+     (setf *lift* t)
+     (parse rest))
+    ((list* "--iterated" rest)
+     (setf *iterated* t)
+     (parse rest))
+    ((list* "--junk" length quantity rest)
+     (setf *junk* (list (read-from-string length)
+                        (read-from-string quantity)))
+     (parse rest))
+    ((list* "--fastjunk" rest)
+     (setf *junk-type* :greedy)
+     (format t "~& Fast junk generation activated, sacrificing uniformness")
+     (parse (list* "--junk" rest)))
+    ((list* "--junk-type" type rest)
+     (setf *junk-type* (read-from-string type))
+     (parse rest))
+    ((list* "--seed" seed rest)
+     (setf *seed* (read-from-string seed))
+     (parse rest))
+    ;; wrappers
+    ((list* "--mangle" rest)
+     (let ((*transformers* (cons #'mangle-wrapper *transformers*)))
+       (parse rest)))
+    ((list* "--add-macro-cost" rest)
+     (let ((*transformers* (cons #'add-macro-cost *transformers*)))
+       (parse rest)))
+    ((list* "--remove-cost" rest)
+     (let ((*transformers* (cons #'remove-cost *transformers*)))
+       (parse rest)))
+    ((list* "--search" planner rest)
+     (setf *search* planner)
+     (consume-until-hyphen
+      rest
+      (lambda (options rest)
+        (setf *options* options)
+        (parse rest))))
+    ((list* "--megabytes-consed-between-gcs" bytes rest)
+     (setf (sb-ext:bytes-consed-between-gcs)
+           (* 1024 1024 (parse-integer bytes)))
+     (parse rest))
+    ((list* (string* #\-) _)
+     (error 'invalid-arguments))
+    ((list* _ _)
+     (format t "~%; Build date : ~a~%" *build-date*)
+     (apply #'solve-with-timer (mapcar #'merge-pathnames args)))
+    (nil
+     (format *error-output* "~&Usage: mwup PROBLEM [DOMAIN] [MACROPLANS...]~
                ~%~@{~4t~40<~(~a~)~;~{~a ~}~> : ~@(~a~)~%~}"
-               '-----------------debug-options---------- nil "-------------------------------"
-               '-v nil (documentation '*verbose* 'variable)
-               '--seed '(seed) (documentation '*seed* 'variable)
-               '--megabytes-consed-between-gcs '(megabytes) "GC tuning"
-               '--validation nil (documentation '*validation* 'variable)
-               '--enhance-only nil (documentation '*enhance-only* 'variable)
-               '--------------macro-options---------- nil "-------------------------------"
-               '--mode '(mode) (documentation '*mode* 'variable)
-               '--plain nil "Do not add the macros. Equivalent to --mode :plain"
-               '--mangle nil (documentation '*mangle* 'variable)
-               '--macro-prefix '(prefix) (documentation '*macro-prefix* 'variable)
-               '--junk '(length quantity) (documentation '*junk* 'variable)
-               '--fastjunk '(length quantity) "Same as --junk and --junk-type :greedy"
-               '--junk-type '(type) (documentation '*junk-type* 'variable)
-               '--force-lifted nil (documentation '*lift* 'variable)
-               '----------computational-resource-------- nil "-------------------------------"
-               '-t '(sec) "Time limit for the main search. NOT the total limit"
-               '-m '(memory-in-kb) "memory limit for main search and subproblems. NOT the total limit"
-               '--------underlying-planner-options------ nil "-------------------------------"
-               '--search '(planner options... -) "Specify MainPlanner. Options end with a \"-\"."
-               "" nil "Where PLANNER is one of: fd-clean,ff-clean,probe-clean,"
-               "" nil "marvin1-clean,marvin2-clean,lpg-clean,mp-clean."
-               '-------planner-compatibility-options---- nil "-------------------------------"
-               '--add-macro-cost nil "Unit-cost domains are converted into action-cost domains. In those domains macro actions are then given a cost same as its length."
-               '--remove-cost nil "Remove :action-costs from the resulting domain."
-               '-------------shortcuts/aliases---------- nil "-------------------------------"
-               )
-       (format *error-output* "~%DOMAIN is by default domain.pddl, or <problemname>-domain.pddl in the same directory")
-       (format *error-output* "~%MACROPLANS are by default <problemname>.macro.?[0-9]* in the same directory")
-       (format *error-output* "~%Build date : ~a" *build-date*)
-       (format *error-output* "~%Base impl : ~a ~a" (lisp-implementation-type) (lisp-implementation-version))
-       (terpri *error-output*)
-       t)
-      (_
-       (error 'invalid-arguments))))
+             '-----------------debug-options---------- nil "-------------------------------"
+             '-v nil (documentation '*verbose* 'variable)
+             '--seed '(seed) (documentation '*seed* 'variable)
+             '--megabytes-consed-between-gcs '(megabytes) "GC tuning"
+             '--validation nil (documentation '*validation* 'variable)
+             '--enhance-only nil (documentation '*enhance-only* 'variable)
+             '--------------macro-options---------- nil "-------------------------------"
+             '--mode '(mode) (documentation '*mode* 'variable)
+             '--plain nil "Do not add the macros. Equivalent to --mode :plain"
+             '--mangle nil (documentation '*mangle* 'variable)
+             '--macro-prefix '(prefix) (documentation '*macro-prefix* 'variable)
+             '--junk '(length quantity) (documentation '*junk* 'variable)
+             '--fastjunk '(length quantity) "Same as --junk and --junk-type :greedy"
+             '--junk-type '(type) (documentation '*junk-type* 'variable)
+             '--force-lifted nil (documentation '*lift* 'variable)
+             '----------computational-resource-------- nil "-------------------------------"
+             '-t '(sec) "Time limit for the main search. NOT the total limit"
+             '-m '(memory-in-kb) "memory limit for main search and subproblems. NOT the total limit"
+             '--------underlying-planner-options------ nil "-------------------------------"
+             '--search '(planner options... -) "Specify MainPlanner. Options end with a \"-\"."
+             "" nil "Where PLANNER is one of: fd-clean,ff-clean,probe-clean,"
+             "" nil "marvin1-clean,marvin2-clean,lpg-clean,mp-clean."
+             '-------planner-compatibility-options---- nil "-------------------------------"
+             '--add-macro-cost nil "Unit-cost domains are converted into action-cost domains. In those domains macro actions are then given a cost same as its length."
+             '--remove-cost nil "Remove :action-costs from the resulting domain."
+             '-------------shortcuts/aliases---------- nil "-------------------------------"
+             )
+     (format *error-output* "~%DOMAIN is by default domain.pddl, or <problemname>-domain.pddl in the same directory")
+     (format *error-output* "~%MACROPLANS are by default <problemname>.macro.?[0-9]* in the same directory")
+     (format *error-output* "~%Build date : ~a" *build-date*)
+     (format *error-output* "~%Base impl : ~a ~a" (lisp-implementation-type) (lisp-implementation-version))
+     (terpri *error-output*)
+     t)
+    (_
+     (error 'invalid-arguments))))
