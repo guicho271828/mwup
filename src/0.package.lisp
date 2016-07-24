@@ -49,8 +49,8 @@ If *junk* is NIL, no junk macros should be added.")
   primitive actions. Quantity could be :INFINITY.")
 (defvar *iterated* nil "")
 
-(defvar *transformers* (list #'filter-trivial-macros #'basic-enhance)
-  "list of functions which take 3 arguments and return 3 values: domain, problem, macros (in this order)."
+(defvar *transformers* (list 'junk-tag-wrapper 'filter-trivial-macros 'basic-enhance)
+  "list of functions which take 3 arguments and return 3 values: domain, problem, macros (in this order).")
 
 (defvar *search* "fd-clean"
   "search command in planner-scripts.")
