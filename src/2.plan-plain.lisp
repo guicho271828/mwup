@@ -42,12 +42,12 @@
   (namestring dest))
 
 (defmethod solve ((mode (eql :plain-safe)) dpath ppath)
-  (format t "~&Safe Plain mode. Plans are not parsed, and just copied to the tmp directory without processing.")
+  (tformat t "~&Safe Plain mode. Plans are not parsed, and just copied to the tmp directory without processing.")
   (with-temp (dir "plain")
     (let ((plans
            (handler-bind ((trivial-signal:unix-signal
                            (lambda (c)
-                             (format t "~&main search terminated")
+                             (tformat t "~&main search terminated")
                              (invoke-restart
                               (find-restart 'pddl:finish c)))))
              (test-problem-common
