@@ -18,9 +18,8 @@ Copyright (c) 2015 Masataro Asai (guicho2.71828@gmail.com)
   (let* ((*default-pathname-defaults*
           (asdf:system-source-directory :mwup))
          (cmd (format nil
-                      "cd ~a; cgexec -g cpu,cpuacct,memory:/~a ~a ~{ ~s~}"
+                      "cd ~a; ~a ~{ ~s~}"
                       (namestring *default-pathname-defaults*)
-                      (run-program "whoami" :output '(:string :stripped t))
                       (namestring (merge-pathnames "mwup"))
                       (mapcar #'namestring (flatten args)))))
     (format t "~&~a~%" cmd)
