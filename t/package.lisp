@@ -40,11 +40,8 @@ Copyright (c) 2015 Masataro Asai (guicho2.71828@gmail.com)
         (mwup::*junk* nil)
         (mwup::*junk-type* :reservoir)
         (mwup::*iterated* nil)
-        (mwup::*add-macro-cost* nil)
-        (mwup::*remove-cost* nil)
         (mwup::*search* "fd-clean")
-        (mwup::*options* "--search-options --if-unit-cost --heuristic hlm,hff=lm_ff_syn(lm_rhw(reasonable_orders=true)) --search lazy_greedy([hff,hlm],preferred=[hff,hlm]) --if-non-unit-cost --heuristic hlm1,hff1=lm_ff_syn(lm_rhw(reasonable_orders=true,lm_cost_type=one,cost_type=one)) --search lazy_greedy([hff1,hlm1],preferred=[hff1,hlm1],cost_type=one,reopen_closed=false) --always")
-        (mwup::*mangle* nil))
+        (mwup::*options* "--search-options --if-unit-cost --heuristic hlm,hff=lm_ff_syn(lm_rhw(reasonable_orders=true)) --search lazy_greedy([hff,hlm],preferred=[hff,hlm]) --if-non-unit-cost --heuristic hlm1,hff1=lm_ff_syn(lm_rhw(reasonable_orders=true,lm_cost_type=one,cost_type=one)) --search lazy_greedy([hff1,hlm1],preferred=[hff1,hlm1],cost_type=one,reopen_closed=false) --always"))
     (apply #'mwup::mwup-run args)))
 
 (test ros-dry-runs

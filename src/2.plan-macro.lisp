@@ -14,10 +14,7 @@
         (finalize-plans-macros
          dpath ppath
          (solve-problem-enhancing (lambda ()
-                                    (funcall (apply #'multiple-value-compose
-                                                    (append *transformers*
-                                                            (list #'filter-trivial-macros
-                                                                  #'basic-enhance)))
+                                    (funcall (apply #'multiple-value-compose *transformers*)
                                              problem domain
                                              (append
                                               (maybe-junk-macros problem domain)

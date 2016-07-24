@@ -48,21 +48,15 @@ If *junk* is NIL, no junk macros should be added.")
   and compute the actual quantity relative to the number of
   primitive actions. Quantity could be :INFINITY.")
 (defvar *iterated* nil "")
-(defvar *add-macro-cost* nil "Add the action costs to the domain if it is a unit-cost domain.
-Primitive actions are given a cost of 1. Macro actions are given a cost same as its length.
-Ignored when *remove-main-problem-cost* is T.")
 
-(defvar *remove-cost* nil "When non-nil, the problem and the domain solved
-by the external planner could be modified so that it does not have
-any :action-costs, so that any pure STRIPS-based planners can be
-used. Supercedes *add-macro-cost*.")
+(defvar *transformers* (list #'filter-trivial-macros #'basic-enhance)
+  "list of functions which take 3 arguments and return 3 values: domain, problem, macros (in this order)."
+
 (defvar *search* "fd-clean"
   "search command in planner-scripts.")
 (defvar *options* "--search-options --if-unit-cost --heuristic hlm,hff=lm_ff_syn(lm_rhw(reasonable_orders=true)) --search lazy_greedy([hff,hlm],preferred=[hff,hlm]) --if-non-unit-cost --heuristic hlm1,hff1=lm_ff_syn(lm_rhw(reasonable_orders=true,lm_cost_type=one,cost_type=one)) --search lazy_greedy([hff1,hlm1],preferred=[hff1,hlm1],cost_type=one,reopen_closed=false) --always"
   "search options to pass to the underlying planner. default value is for
 fd-clean and specifies those equivalent to LAMA2011.")
-
-(defvar *mangle* nil "Action names are mangled.")
 
 (define-condition invalid-arguments (simple-error) ())
 
@@ -105,9 +99,6 @@ fd-clean and specifies those equivalent to LAMA2011.")
       ((list* "--mode" mode rest)
        (setf *mode* (read-from-string mode))
        (parse rest))
-      ((list* "--mangle" rest)
-       (setf *mangle* t)
-       (parse rest))
       ((list* "-t" time rest)
        (setf *hard-time-limit* (parse-integer time))
        (parse rest))
@@ -135,13 +126,16 @@ fd-clean and specifies those equivalent to LAMA2011.")
       ((list* "--seed" seed rest)
        (setf *seed* (read-from-string seed))
        (parse rest))
-      ;; cost options
+      ;; wrappers
+      ((list* "--mangle" rest)
+       (let ((*transformers* (cons #'mangle-wrapper *transformers*)))
+         (parse rest)))
       ((list* "--add-macro-cost" rest)
-       (setf *add-macro-cost* t)
-       (parse rest))
+       (let ((*transformers* (cons #'add-macro-cost *transformers*)))
+         (parse rest)))
       ((list* "--remove-cost" rest)
-       (setf *remove-cost* t)
-       (parse rest))
+       (let ((*transformers* (cons #'remove-cost *transformers*)))
+         (parse rest)))
       ((list* "--search" planner rest)
        (setf *search* planner)
        (consume-until-hyphen
