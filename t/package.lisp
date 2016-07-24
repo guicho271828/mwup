@@ -30,6 +30,7 @@ Copyright (c) 2015 Masataro Asai (guicho2.71828@gmail.com)
 
 (defun launch-online (&rest args)
   (let ((*default-pathname-defaults* (asdf:system-source-directory :mwup))
+        (mwup::*mode* :junk-macro)
         (mwup::*enhance-only* nil)
         (mwup::*verbose* nil)
         (mwup::*validation* nil)
