@@ -1,11 +1,5 @@
 (in-package :mwup)
 
-(defmethod solve :around ((mode (eql :junk-macro)) dpath ppath)
-  (handler-case
-      (call-next-method)
-    (no-macro ()
-      (solve :plain dpath ppath))))
-
 (defmethod solve ((mode (eql :junk-macro)) dpath ppath)
   (let ((*macro-paths* (or *macro-paths* (find-macros ppath))))
     (multiple-value-bind (dname domain) (suppress (parse-file dpath nil t))
@@ -60,7 +54,6 @@
     (when *verbose* (room nil))
     (tformat t "Solving the enhanced problem with the main planner ~a." *search*)
     (unless *enhance-only*
-      (when (zerop (length macros)) (signal 'no-macro))
       (with-temp (dir "enhanced")
         (let* ((paths (handler-bind ((trivial-signal:unix-signal
                                       (lambda (c)

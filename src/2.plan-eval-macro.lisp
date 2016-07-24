@@ -1,11 +1,5 @@
 (in-package :mwup)
 
-(defmethod solve :around ((mode (eql :eval-macro)) dpath ppath)
-  (handler-case
-      (call-next-method)
-    (no-macro ()
-      (solve :plain dpath ppath))))
-
 (defmethod solve ((mode (eql :eval-macro)) dpath ppath)
   (multiple-value-bind (dname domain) (suppress (parse-file dpath nil t))
     (multiple-value-bind (pname problem) (suppress (parse-file ppath nil t))

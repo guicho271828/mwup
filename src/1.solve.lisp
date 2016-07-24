@@ -27,8 +27,6 @@
     (tformat t "~a" (directory wild))
     (directory wild)))
 
-(define-condition no-macro () ())
-
 (defvar *start*)
 
 (defun elapsed ()
