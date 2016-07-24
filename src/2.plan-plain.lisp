@@ -7,8 +7,22 @@
        (uiop:run-program (format nil "rm -rf ~a" (namestring ,var))))))
 
 (defmethod solve ((mode (eql :plain)) dpath ppath)
-  (multiple-value-bind (dname domain) (suppress (parse-file dpath nil t))
-    (multiple-value-bind (pname problem) (suppress (parse-file ppath nil t))
+  (multiple-value-bind (dname domain)
+      (suppress
+        (handler-case (parse-file dpath nil t)
+          (error ()
+            (tformat t "~%Failed to parse ~A in plain mode! Falling back to safe-plain"
+                     dpath)
+            (return-from solve
+              (solve :plain-safe dpath ppath)))))
+    (multiple-value-bind (pname problem)
+        (suppress
+          (handler-case (parse-file ppath nil t)
+            (error ()
+              (tformat t "~%Failed to parse ~a in plain mode! Falling back to safe-plain"
+                       ppath)
+              (return-from solve
+                (solve :plain-safe dpath ppath)))))
       (print dname) (print domain) (print pname) (print problem)
       (finalize-plans-macros
        dpath ppath
