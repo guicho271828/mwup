@@ -6,7 +6,8 @@
 (in-package :cl-user)
 (defpackage mwup
   (:use :cl :pddl.macro-action :pddl :alexandria :iterate :trivia
-        :guicho-utilities)
+        :guicho-utilities
+        :priority-queue)
   (:shadowing-import-from :pddl :minimize :maximize))
 (in-package :mwup)
 

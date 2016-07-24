@@ -22,13 +22,15 @@
   :author "Masataro Asai"
   :mailto "guicho2.71828@gmail.com"
   :license "WTFPL"
-  :depends-on (:pddl.planner-scripts :pddl.macro-action :pddl :alexandria :iterate :trivia)
+  :depends-on (:pddl.planner-scripts :pddl.macro-action :pddl :alexandria :iterate :trivia
+                                     :priority-queue)
   :components ((:module :src
                 :components
                 ((:file :0.package)
                  (:file :1.solve)
                  (:file :2.plan-plain)
                  (:file :2.plan-macro)
+                 (:file :2.plan-eval-macro)
                  (:file :3.enhance)
                  (:file :3.macro-cost)
                  (:file :3.filter)

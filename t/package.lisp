@@ -155,6 +155,22 @@ Copyright (c) 2015 Masataro Asai (guicho2.71828@gmail.com)
       (launch-online "--validation" "--junk-type" ":relative-init"
                      "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl"))))
 
+(test eval-macro
+  (is
+   (launch-online "-v" "--validation" "--mode" ":plain" "t/test3/p01.pddl" "t/test3/domain.pddl"))
+  (dolist (len '("2" "5"))
+    (dolist (param '("100" "10" "1" "0.1"))
+      (is
+       (launch-online "-v" "--validation" "--mode" ":eval-macro"
+                      "--junk" len param "t/test3/p01.pddl" "t/test3/domain.pddl"))))
+  (is
+   (launch-online "--validation" "--mode" ":eval-macro"
+                  "--junk" "2" ":infinity" "t/test3/p01.pddl" "t/test3/domain.pddl"))
+  (dolist (arg '("-1" ":someother"))
+    (signals error
+      (launch-online "--validation" "--mode" ":eval-macro"
+                     "--junk" "2" arg "t/test3/p01.pddl" "t/test3/domain.pddl"))))
+
 (test mangle
   (is
    (launch-online "--validation" "--plain" "--mangle" "t/test3/p01.pddl" "t/test3/domain.pddl"))
